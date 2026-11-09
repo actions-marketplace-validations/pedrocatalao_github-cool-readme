@@ -37,6 +37,27 @@ export interface WeekdayItem {
   count: number;
 }
 
+/** The weekly card's numbers: the busiest and the quietest weekday, and the share of Monday to Friday. */
+export interface WeekdayFacts {
+  busiest: WeekdayItem;
+  quietest: WeekdayItem;
+  /** Percent of the contributions made Monday to Friday. */
+  weekdays: number;
+}
+
+export function weekdayFacts(days: WeekdayItem[]): WeekdayFacts {
+  const total = days.reduce((s, d) => s + d.count, 0);
+  const busiest = days.reduce((top, d) => (d.count > top.count ? d : top), days[0]);
+  const quietest = days.reduce((low, d) => (d.count < low.count ? d : low), days[0]);
+  const weekdays = days.slice(0, 5).reduce((s, d) => s + d.count, 0);
+  return { busiest, quietest, weekdays: total ? Math.round((weekdays / total) * 100) : 0 };
+}
+
+/** A weekday's full name, from its short one. */
+export const DAY_NAMES: Record<string, string> = {
+  Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday',
+};
+
 export interface Model {
   summary: SummaryModel;
   languages: LanguageItem[];
@@ -224,9 +245,9 @@ export function compute(snapshot: Snapshot, config: Config): Model {
     weekly[(sundayFirst + 6) % 7].count += d.count;
   }
 
-  // Streaks: every day since you joined. Like the weekly rhythm, the calendar can't be filtered.
-  const streaks = streakStats(snapshot.allDays);
-  const days = streakDays(snapshot.allDays);
+  // Streaks: the last 12 months, like the active days and the weekly rhythm; the calendar can't be filtered.
+  const streaks = streakStats(snapshot.calendar);
+  const days = streakDays(snapshot.calendar);
   if (filtering && config.show.includes('streaks')) {
     notes.push('the count settings cannot filter the contribution calendar, so the streaks card still counts private and organization work');
   }

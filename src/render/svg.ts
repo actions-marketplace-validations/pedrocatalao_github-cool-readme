@@ -12,10 +12,12 @@ export interface Theme {
   track: string;
   /** Fallback for languages without a GitHub color, and "Other". */
   neutral: string;
-  /** The contribution graph's greens, from least to most active: the brighter, the busier. */
+  /** The contribution graph's greens, from least to most active: darker on light, brighter on dark. */
   heat: [string, string, string, string];
   /** GitHub's success green, readable as text: what a graph highlights, and its number. */
   highlight: string;
+  /** Words marked *like this* in the about card's text. */
+  emphasis: string;
 }
 
 // GitHub's own Primer colors, so the cards sit naturally on the profile page.
@@ -29,8 +31,9 @@ export const THEMES: Record<Mode, Theme> = {
     accent: '#0969da',
     track: '#d1d9e0',
     neutral: '#8c959f',
-    heat: ['#216e39', '#30a14e', '#40c463', '#9be9a8'],
+    heat: ['#9be9a8', '#40c463', '#30a14e', '#216e39'],
     highlight: '#2da44e',
+    emphasis: '#0969da',
   },
   dark: {
     background: '#0d1117',
@@ -43,6 +46,7 @@ export const THEMES: Record<Mode, Theme> = {
     neutral: '#6e7681',
     heat: ['#0e4429', '#006d32', '#26a641', '#39d353'],
     highlight: '#3fb950',
+    emphasis: '#4493f8',
   },
 };
 
@@ -52,24 +56,24 @@ const TINTS: Record<'amber' | 'green' | 'purple' | 'cyan' | 'red' | 'blue', Reco
   // Like the greens: deep to pale on a light page, dim to bright on a dark one; the highlight dark
   // enough to read as text on white.
   amber: {
-    light: { accent: '#e08a00', heat: ['#9a4d00', '#c26a00', '#f0a020', '#ffd58a'], highlight: '#b35c00' },
+    light: { accent: '#e08a00', heat: ['#ffd58a', '#f0a020', '#c26a00', '#9a4d00'], highlight: '#b35c00' },
     dark: { accent: '#ffab1a', heat: ['#5c3300', '#8f5200', '#d98a00', '#ffab1a'], highlight: '#ffab1a' },
   },
   // GitHub's purple, cyan, red and blue the same way: deep to pale on light, dim to bright on dark.
   purple: {
-    light: { accent: '#8250df', heat: ['#4c2889', '#6639ba', '#a475f9', '#d8b9ff'], highlight: '#8250df' },
+    light: { accent: '#8250df', heat: ['#d8b9ff', '#a475f9', '#6639ba', '#4c2889'], highlight: '#8250df' },
     dark: { accent: '#a371f7', heat: ['#2e1a4f', '#553098', '#8957e5', '#c297ff'], highlight: '#a371f7' },
   },
   cyan: {
-    light: { accent: '#0e8a9a', heat: ['#054952', '#0a7b8a', '#3fb8c6', '#a5e8ef'], highlight: '#0a7b8a' },
+    light: { accent: '#0e8a9a', heat: ['#a5e8ef', '#3fb8c6', '#0a7b8a', '#054952'], highlight: '#0a7b8a' },
     dark: { accent: '#39c5cf', heat: ['#0a3a40', '#0e6b75', '#1fa3b0', '#56d4dd'], highlight: '#39c5cf' },
   },
   red: {
-    light: { accent: '#cf222e', heat: ['#82071e', '#cf222e', '#f2706f', '#ffc1bd'], highlight: '#cf222e' },
+    light: { accent: '#cf222e', heat: ['#ffc1bd', '#f2706f', '#cf222e', '#82071e'], highlight: '#cf222e' },
     dark: { accent: '#f85149', heat: ['#4d1215', '#8e1b20', '#da3633', '#ff7b72'], highlight: '#f85149' },
   },
   blue: {
-    light: { accent: '#0969da', heat: ['#0a3069', '#0969da', '#54aeff', '#b6e3ff'], highlight: '#0969da' },
+    light: { accent: '#0969da', heat: ['#b6e3ff', '#54aeff', '#0969da', '#0a3069'], highlight: '#0969da' },
     dark: { accent: '#4493f8', heat: ['#0c2d6b', '#1158c7', '#388bfd', '#79c0ff'], highlight: '#4493f8' },
   },
   // GitHub's greens, with the ring green too.
@@ -81,7 +85,8 @@ const TINTS: Record<'amber' | 'green' | 'purple' | 'cyan' | 'red' | 'blue', Reco
 
 /** The classic cards' colours for a mode, in `color`: github leaves GitHub's own. */
 export function themeFor(mode: Mode, color: keyof typeof TINTS | 'github'): Theme {
-  return color === 'github' ? THEMES[mode] : { ...THEMES[mode], ...TINTS[color][mode] };
+  // A colour's marked words are in its highlight, which reads as text on either page.
+  return color === 'github' ? THEMES[mode] : { ...THEMES[mode], ...TINTS[color][mode], emphasis: TINTS[color][mode].highlight };
 }
 
 // One size for every card: two side by side fill a profile README's 800px, shown at their real
@@ -145,6 +150,74 @@ export function truncate(s: string, maxWidth: number, fontSize: number, bold = f
   let out = s;
   while (out.length > 1 && textWidth(`${out}…`, fontSize, bold) > maxWidth) out = out.slice(0, -1);
   return `${out}…`;
+}
+
+/** Text with parts marked *like this*: the parts in order, the marked ones flagged. A lone * stays as it is. */
+export function marked(text: string): { text: string; mark: boolean }[] {
+  const parts: { text: string; mark: boolean }[] = [];
+  let at = 0;
+  for (const m of text.matchAll(/\*([^*]+)\*/g)) {
+    if (m.index > at) parts.push({ text: text.slice(at, m.index), mark: false });
+    parts.push({ text: m[1], mark: true });
+    at = m.index + m[0].length;
+  }
+  if (at < text.length) parts.push({ text: text.slice(at), mark: false });
+  return parts;
+}
+
+/** Text without its marks. */
+export function unmarked(text: string): string {
+  return marked(text).map((p) => p.text).join('');
+}
+
+/**
+ * Text wrapped by words into rows that `fits`, each row with its own marks, so a marked phrase
+ * split over two rows is marked on both. A word longer than a row gets one to itself.
+ */
+export function wrapMarked(text: string, fits: (row: string) => boolean): string[] {
+  const chars: { ch: string; mark: boolean }[] = [];
+  for (const part of marked(text.trim().replace(/\s+/g, ' '))) for (const ch of part.text) chars.push({ ch, mark: part.mark });
+  const plain = chars.map((c) => c.ch).join('');
+  // Rows as [start, end) in plain, broken at spaces.
+  const rows: [number, number][] = [];
+  let start = 0;
+  let end = 0;
+  for (const word of plain.matchAll(/\S+/g)) {
+    const wordEnd = word.index + word[0].length;
+    if (end > start && !fits(plain.slice(start, wordEnd))) {
+      rows.push([start, end]);
+      start = word.index;
+    }
+    end = wordEnd;
+  }
+  if (end > start) rows.push([start, end]);
+  // Each row's text again, with * around its marked runs.
+  return rows.map(([from, to]) => {
+    let out = '';
+    for (let i = from; i < to; i++) {
+      const c = chars[i];
+      if (c.mark && (i === from || !chars[i - 1].mark)) out += '*';
+      out += c.ch;
+      if (c.mark && (i === to - 1 || !chars[i + 1].mark)) out += '*';
+    }
+    return out;
+  });
+}
+
+/** A text element's content: the text cut to fit like `truncate`, its marked parts in `colour`. */
+export function markedText(text: string, maxWidth: number, fontSize: number, colour: string, bold = false): string {
+  const parts = marked(text);
+  const whole = parts.map((p) => p.text).join('');
+  const cut = truncate(whole, maxWidth, fontSize, bold);
+  let left = cut === whole ? whole.length : cut.length - 1; // the characters that stay, before the …
+  let out = '';
+  for (const p of parts) {
+    if (left <= 0) break;
+    const t = esc(p.text.slice(0, left));
+    left -= p.text.length;
+    out += p.mark ? `<tspan fill="${colour}">${t}</tspan>` : t;
+  }
+  return cut === whole ? out : `${out}…`;
 }
 
 const ANIMATIONS = `

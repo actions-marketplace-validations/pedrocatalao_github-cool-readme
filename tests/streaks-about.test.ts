@@ -5,6 +5,7 @@ import { CARDS, DEFAULT_CONFIG, parseConfig, type Config } from '../src/config.t
 import { renderAll } from '../src/render/index.ts';
 import { wrap } from '../src/display/about.ts';
 import { textCells } from '../src/display/font.ts';
+import { marked, markedText, unmarked, wrapMarked } from '../src/render/svg.ts';
 import { streakDays, streakLengths, streakStats } from '../src/stats.ts';
 import { fixture } from './fixtures/snapshot.ts';
 
@@ -40,15 +41,17 @@ describe('streaks', () => {
 
   it('reports the streaks, active days and the best day and month', () => {
     const stats = compute(fixture(), DEFAULT_CONFIG).streaks;
-    expect(tile(stats, 'Current streak')).toBe('2 days');
-    expect(tile(stats, 'Longest streak')).toBe('3 days');
-    expect(tile(stats, 'Active days')).toBe(5);
-    expect(tile(stats, 'Best day · Jan 2, 2026')).toBe(9);
-    expect(tile(stats, 'Best month · Jan 2026')).toBe(12);
+    // The last 12 months' calendar, Oct 1-10: 0 0 0 0 4 5 6 7 8 9.
+    expect(tile(stats, 'Current streak')).toBe('6 days');
+    expect(tile(stats, 'Longest streak')).toBe('6 days');
+    expect(tile(stats, 'Active days')).toBe(6);
+    expect(tile(stats, 'Per active day')).toBe('7'); // 39 / 6, rounded
+    expect(tile(stats, 'Best day · Oct 10, 2026')).toBe(9);
+    expect(tile(stats, 'Best month · Oct 2026')).toBe(39);
   });
 
   it('knows where the runs, the best day and the best month are, for the oled strips', () => {
-    const sd = streakDays(fixture().allDays); // Jan 1-4: 2 9 1 0, Feb 27-28: 3 3, Mar 1: 0
+    const sd = streakDays([...days('2026-01-01', [2, 9, 1, 0]), ...days('2026-02-27', [3, 3, 0])]);
     expect(sd.days.map((d) => d.date)).toEqual(['2026-01-01', '2026-01-02', '2026-01-03', '2026-01-04', '2026-02-27', '2026-02-28', '2026-03-01']);
     expect(sd.longest).toEqual([0, 2]);
     expect(sd.current).toEqual([4, 5]);
@@ -59,22 +62,29 @@ describe('streaks', () => {
 
   it('gives each oled slide its own strip of days', () => {
     const c = parseConfig('style: oled\ncards: [streaks]\n');
-    const svg = renderAll(compute(fixture(), c), c)['streaks-dark.svg'];
+    const calendar = [...days('2026-01-01', [2, 9, 1, 0]), ...days('2026-02-27', [3, 3, 0])];
+    const svg = renderAll(compute({ ...fixture(), calendar }, c), c)['streaks-dark.svg'];
     expect(svg.match(/-opacity="0.25"/g)?.length).toBeGreaterThanOrEqual(5); // the days a slide isn't about, slide by slide
     expect(svg).toMatch(/-opacity="0.6"/); // the average line
   });
 
-  it('slides between two pages on the classic card, each with its own bars, or stays on the first', () => {
+  it('slides on through three pages on the classic card, the green moving over the bars, or stays on the first', () => {
     const svg = render('streaks');
-    expect(svg).toContain('@keyframes cols');
-    expect(svg).toContain('class="page1"');
-    expect(svg).toContain('class="page2"');
+    // Always left, a column at a time, ending on page 1 again (its columns repeated) to start over unseen.
+    expect(svg).toMatch(/@keyframes cols \{.*translateX\(-180px\).*translateX\(-360px\).*100% \{ transform: translateX\(-540px\); \} \}/);
+    expect(svg.match(/>6 days</g)?.length).toBe(4); // the current and longest streaks (both 6 days), and their copies
+    // The bottom-left number is green while the graph is about it: longest streak, best month, active days.
+    for (const [p, value] of [[0, '6 days'], [1, '39'], [2, '6'], [3, '6 days']]) expect(svg).toContain(`class="lit${p}" style="font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums;">${value}<`);
+    // The green bars show through rects that move between the pages; one per run of active days (Oct 5-10).
+    expect(svg).toContain('mask="url(#lit)"');
+    expect(svg.match(/<rect class="h\d+"/g)?.length).toBe(1);
+    expect(svg.indexOf('>7<')).toBeLessThan(svg.indexOf('>Active days<')); // per active day above the active days
     const still = render('streaks', (c) => (c.look.animations = false));
     expect(still).not.toContain('class="cols"');
-    expect(still).not.toContain('page2');
-    expect(still.match(/fill="#2da44e"/g)?.length).toBe(1); // the longest streak's bars, in green
-    expect(still).toMatch(/fill: #2da44e;">3 days</); // and its number (the fixture's longest streak)
-    expect(svg).toMatch(/fill: #2da44e;">12</); // the best month's number, on page 2
+    expect(still).not.toContain('@keyframes');
+    expect(still.match(/fill: #2da44e;/g)?.length).toBe(1);
+    expect(still).toMatch(/fill: #2da44e;">6 days</); // the longest streak's number
+    expect(still).toContain('transform="translate(374 0) scale(6 1)"'); // over its days
   });
 
   it('is a 400 by 195 card', () => {
@@ -100,15 +110,50 @@ describe('about', () => {
     expect(svg).toMatch(/<svg [^>]*width="400" height="195"/);
   });
 
-  it('scrolls the lines and facts that don\'t fit a page at a time, the headline staying', () => {
+  it('scrolls the lines that don\'t fit slowly up to the last, then crossfades back to the start, the headline staying', () => {
     const many = (c: Config) => { c.cards.about.headline = 'Hi'; c.cards.about.lines = ['1', '2', '3', '4', '5', '6', '7']; };
     const svg = render('about', many);
     expect(svg).toContain('>7<');
-    // 4 rows in view under a headline: two pages, the second moved up so it's full (rows 4-7)
-    expect(svg).toMatch(/@keyframes scroll \{ 0.00%, [\d.]+% \{ transform: translateY\(-0px\); \} [\d.]+%, [\d.]+% \{ transform: translateY\(-66px\); \} 100%/);
+    // 4 rows in view under a headline: up 3 rows, just enough for the 7th, then fading out as a
+    // copy of the first 4 fades in
+    expect(svg).toMatch(/@keyframes scroll \{ 0%, [\d.]+% \{ transform: translateY\(0\); \} .* 100% \{ opacity: 0; transform: translateY\(-66px\); \} \}/);
+    expect(svg).toMatch(/@keyframes again \{ 0%, [\d.]+% \{ opacity: 0; \} 100% \{ opacity: 1; \} \}/);
+    expect(svg.split('class="again"')[1].match(/>\d</g)).toEqual(['>1<', '>2<', '>3<', '>4<']);
     expect(svg).toMatch(/<desc[^>]*>Hi 1 2 3 4 5 6 7</);
     expect(render('about', (c) => { c.cards.about.lines = ['1', '2', '3']; })).not.toContain('@keyframes scroll');
     expect(render('about', (c) => { many(c); c.look.animations = false; })).not.toContain('class="scroll"');
+  });
+
+  it('wraps the lines, and with too much to fit keeps the bottom row for the facts, taking turns', () => {
+    expect(wrapMarked('one two *three four* five', (row) => row.length <= 9)).toEqual(['one two', '*three*', '*four* five']);
+    expect(wrapMarked('a *b c* d', (row) => row.length <= 3)).toEqual(['a *b*', '*c* d']); // the mark split over two rows
+    const long = 'word '.repeat(20).trim(); // two rows
+    const fits = render('about', (c) => { c.cards.about.headline = 'Hi'; c.cards.about.lines = [long]; c.cards.about.facts = { A: 'a', B: 'b' }; });
+    expect(fits).not.toContain('class="fact"'); // 2 rows and 2 facts: all 4 fit
+    const svg = render('about', (c) => { c.cards.about.headline = 'Hi'; c.cards.about.lines = [long, long]; c.cards.about.facts = { A: 'a', B: 'b' }; });
+    expect(svg.match(/class="fact" style="animation-delay: [\d.]+s"/g)?.length).toBe(2);
+    expect(svg).toContain('@keyframes fact');
+    // 3 rows for the lines' 4: up one row
+    expect(svg).toContain('translateY(-22px)');
+    expect(svg).not.toContain('translateY(-44px)');
+    const still = render('about', (c) => { c.cards.about.headline = 'Hi'; c.cards.about.lines = [long, long]; c.cards.about.facts = { A: 'a', B: 'b' }; c.look.animations = false; });
+    expect(still).not.toContain('class="fact"');
+    expect(still.match(/>A</g)?.length).toBe(1);
+    expect(still).not.toContain('>B<'); // one fact, the first, without animations
+  });
+
+  it('puts words marked *like this* in the accent colour, without the asterisks', () => {
+    expect(marked("Hi, I'm *Pedro*")).toEqual([{ text: "Hi, I'm ", mark: false }, { text: 'Pedro', mark: true }]);
+    expect(marked('2 * 3 = 6')).toEqual([{ text: '2 * 3 = 6', mark: false }]); // a lone * stays
+    expect(unmarked('*a* b *c*')).toBe('a b c');
+    const svg = render('about', (c) => { c.cards.about.headline = "Hi, I'm *Pedro*"; c.cards.about.lines = ['I like *retro* games']; });
+    expect(svg).toContain('Hi, I&#39;m <tspan fill="#0969da">Pedro</tspan>');
+    expect(svg).toContain('I like <tspan fill="#0969da">retro</tspan> games');
+    expect(svg).toMatch(/<desc[^>]*>Hi, I&#39;m Pedro I like retro games</);
+    // A colour's marked words are in its highlight, dark enough to read on white.
+    expect(render('about', (c) => { c.look.color = 'amber'; c.cards.about.headline = 'Hi *there*'; })).toContain('<tspan fill="#b35c00">there</tspan>');
+    // Cut to fit, the mark stays on what's left.
+    expect(markedText(`*${'x'.repeat(200)}*`, 100, 14, '#f00')).toMatch(/^<tspan fill="#f00">x+<\/tspan>…$/);
   });
 
   it('escapes the text, and says so when empty', () => {
@@ -135,7 +180,7 @@ describe('the new cards', () => {
       expect(svg).not.toContain('<text'); // drawn in dots, not set in a font
       expect(svg).not.toMatch(/NaN|undefined|Infinity/);
     }
-    expect(files['streaks-light.svg']).toContain('Longest streak: 3 days');
+    expect(files['streaks-light.svg']).toContain('Longest streak: 6 days');
     expect(files['about-light.svg']).toContain('Hi One line Focus: Tools');
     expect(files['about-light.svg']).toContain('@keyframes'); // the slides take turns
   });
@@ -152,6 +197,22 @@ describe('the oled about card', () => {
     for (const ch of [...'&@#";=:\'']) expect(textCells(ch, 0, 0)).not.toEqual(textCells('?', 0, 0));
     const c = parseConfig('style: oled\ncards: [about]\n');
     expect(renderAll(compute(fixture(), c), c)['about-dark.svg']).toContain('Nothing here yet');
+  });
+
+  it('lights marked words in the accent colour, or brighter than the rest on a one-colour display', () => {
+    const svg = (color: string) => {
+      const c = parseConfig(`look:\n  style: dotmatrix\n  color: ${color}\nshow: [about]\ncards:\n  about:\n    headline: "Hi *Pedro*"\n`);
+      return renderAll(compute(fixture(), c), c)['about-dark.svg'];
+    };
+    expect(svg('github')).toContain('#4493f8'); // github's accent, for PEDRO
+    expect(svg('github')).not.toMatch(/Hi \*|\*Pedro/);
+    // amber: the same colour, HI dimmed; its letters where they'd be in the whole line
+    const amber = svg('amber');
+    expect(amber).toMatch(/stroke-opacity="0.55"/);
+    const plain = parseConfig('look:\n  style: dotmatrix\n  color: amber\nshow: [about]\ncards:\n  about:\n    headline: "Hi Pedro"\n');
+    const unmarkedSvg = renderAll(compute(fixture(), plain), plain)['about-dark.svg'];
+    const dots = (s: string) => (s.match(/M[\d.]+ [\d.]+h/g) ?? []).sort().join();
+    expect(dots(amber)).toBe(dots(unmarkedSvg));
   });
 
   it('sweeps the headline shine right off the card, so none of it stays over the text', () => {

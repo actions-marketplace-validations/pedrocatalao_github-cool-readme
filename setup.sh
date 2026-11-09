@@ -528,7 +528,7 @@ about_set() { # about_set file block: the about section under cards: replaced by
   rm -f "$block"
 }
 about_placeholder() {
-  echo "    headline: null        # shown large, e.g. \"Hi, I'm $LOGIN\""
+  echo "    headline: null        # shown large, e.g. \"Hi, I'm *$LOGIN*\"; *words* in the accent colour"
   echo "    lines: []             # a line each, e.g. [\"I build developer tools.\"]"
   echo "    facts: {}             # label: text, e.g. { Focus: Rust, Based in: Lisbon }"
 }
@@ -545,7 +545,8 @@ write_about() { # asks for the headline, lines and facts, and writes them under 
   local name hello headline block="" n label text
   name="$(gh api user --jq '.name // empty' 2>/dev/null || true)"
   name="${name%% *}"; name="${name:-$LOGIN}"
-  hello="Hi, I'm $name"
+  hello="Hi, I'm *$name*"
+  note "$(paint 2 "words between asterisks, like *$name*, are in the accent colour")"
   ask_text "headline, shown large $(paint 2 "[$hello; - for none]"):"
   headline="${ANSWER:-$hello}"
   [ "$headline" = "-" ] || block="    headline: $(quoted "$headline")"
@@ -1008,7 +1009,7 @@ else
   if card_on about && $OLD_KEPT && ! grep -q '^about:' "$CONFIG"; then
     {
       echo "about:                  # the about card's text"
-      echo "  headline: null        # shown large, e.g. \"Hi, I'm $LOGIN\""
+      echo "  headline: null        # shown large, e.g. \"Hi, I'm *$LOGIN*\"; *words* in the accent colour"
       echo "  lines: []             # a line each, e.g. [\"I build developer tools.\"]"
       echo "  facts: {}             # label: text, e.g. { Focus: Rust, Based in: Lisbon }"
     } >> "$CONFIG"
@@ -1063,7 +1064,7 @@ fi
 # Prepared here, before the commit, so every question is answered before the long wait for the
 # first run. Until the cards exist the README would show broken images, so on a new setup the
 # README is committed by itself once the first run has made them.
-section "README"
+section "Update"
 # The workflow publishes the cards on their own branch; one kept from before commits them to stats/.
 ON_BRANCH=false
 grep -q "origin $BRANCH" "$WORKFLOW" && ON_BRANCH=true
@@ -1213,7 +1214,7 @@ commit_and_push "$msg" || true
 
 # ------------------------------------------------------------------ first run
 
-$CARDS_OFF || section "First run" # with the cards off there is nothing to run
+if ! $CARDS_OFF; then if $NEW_SETUP; then section "First run"; else section "Run"; fi; fi # with the cards off there is nothing to run
 wait_with_timer() { # wait_with_timer pid label: a spinner and the time taken, until pid ends; its exit status
   local pid="$1" start="$SECONDS" i=0 s
   local frames=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
@@ -1255,7 +1256,7 @@ else
     run_id="$(cat "$WORK/run")"
     report started "the workflow"
     gh run watch "$run_id" -R "$PROFILE" --exit-status >/dev/null 2>&1 & pid=$!
-    wait_with_timer "$pid" "generating the cards, usually 1-3 minutes" && break
+    wait_with_timer "$pid" "generating the cards, usually 30-60 seconds" && break
     token_rejected "$run_id" || die "the workflow failed" "see: gh run view $run_id -R $PROFILE --log-failed"
     report failed "the workflow couldn't use your token: it expired, was revoked or lacks a scope"
     yesno "Replace it?" y || die "the cards can't be made with that token" "run this again when you have a new one"
