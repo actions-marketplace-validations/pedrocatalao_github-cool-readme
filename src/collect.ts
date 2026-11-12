@@ -68,10 +68,10 @@ interface ContributionsResult {
       totalIssueContributions: number;
       restrictedContributionsCount: number;
       contributionCalendar?: { weeks: { contributionDays: { date: string; contributionCount: number }[] }[] };
-      commitContributionsByRepository: ByRepo[];
-      pullRequestContributionsByRepository: ByRepo[];
-      pullRequestReviewContributionsByRepository: ByRepo[];
-      issueContributionsByRepository: ByRepo[];
+      commitContributionsByRepository: (ByRepo | null)[];
+      pullRequestContributionsByRepository: (ByRepo | null)[];
+      pullRequestReviewContributionsByRepository: (ByRepo | null)[];
+      issueContributionsByRepository: (ByRepo | null)[];
     };
   };
 }
@@ -173,9 +173,9 @@ export async function collect(client: Client, config: Config, log: (msg: string)
     });
     const c = res.user.contributionsCollection;
     const byRepo: Record<string, RepoCounts> = {};
-    const add = (list: ByRepo[], field: keyof RepoCounts) => {
+    const add = (list: (ByRepo | null)[], field: keyof RepoCounts) => {
       for (const item of list) {
-        if (!item.repository) continue;
+        if (!item?.repository) continue;
         const key = remember(item.repository);
         byRepo[key] ??= { commits: 0, pullRequests: 0, reviews: 0, issues: 0 };
         byRepo[key][field] += item.contributions.totalCount;
@@ -221,7 +221,7 @@ export async function collect(client: Client, config: Config, log: (msg: string)
       user: {
         pullRequests: {
           pageInfo: PageInfo;
-          nodes: { state: PullRequestState; createdAt: string; mergedAt: string | null; repository: RawRepo | null }[];
+          nodes: ({ state: PullRequestState; createdAt: string; mergedAt: string | null; repository: RawRepo | null } | null)[];
         };
       };
     } = await client.query(
@@ -232,7 +232,7 @@ export async function collect(client: Client, config: Config, log: (msg: string)
       { login, after },
     );
     for (const n of res.user.pullRequests.nodes) {
-      if (!n.repository) continue;
+      if (!n?.repository) continue;
       pullRequests.push({ repo: remember(n.repository), state: n.state, createdAt: n.createdAt, mergedAt: n.mergedAt });
     }
     if (!res.user.pullRequests.pageInfo.hasNextPage) break;
