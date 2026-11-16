@@ -2,7 +2,6 @@
 <title id="title">Notable contributions</title>
 <desc id="desc">microsoft/vcpkg (27570 stars): 1 PR merged · Sep 2026. brave/brave-core (3750 stars): 1 PR open · Oct 2026. dosbox-staging/dosbox-staging (1834 stars): 1 PR merged · Sep 2026. yquake2/yquake2 (1015 stars): 1 PR merged · Jul 2026. OpenMPT/openmpt (795 stars): 2 PRs open · May 2026. opentyrian/opentyrian (605 stars): 1 PR merged, 1 open · Sep 2026</desc>
 <style>
-  text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif; }
   .cs0 { animation: cs0 21.6s infinite; }
   @keyframes cs0 { 0.000% { opacity: 1; transform: translateY(153px); animation-timing-function: steps(51); } 2.778% { opacity: 1; transform: translateY(0px); } 16.662% { opacity: 1; transform: translateY(0px); } 16.667% { opacity: 0; transform: translateY(0); } 100.000% { opacity: 0; transform: translateY(0); } }
   .csh0 { animation: csh0 21.6s infinite; }

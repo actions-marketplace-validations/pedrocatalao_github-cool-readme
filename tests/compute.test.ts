@@ -74,10 +74,59 @@ describe('languages', () => {
     expect(shares(m)).toEqual({ Ruby: 57.1, C: 42.9 });
   });
 
-  it('folds the rest into Other', () => {
-    const m = compute(fixture(), config((c) => (c.cards.languages.count = 2)));
+  it('folds the rest into Other, which counts as one of the entries', () => {
+    const m = compute(fixture(), config((c) => (c.cards.languages.count = 3)));
     expect(shares(m)).toEqual({ Ruby: 34.3, C: 25.7, Other: 40 });
     expect(m.languages.at(-1)!.color).toBeNull();
+    // With count 1, one language and Other.
+    expect(shares(compute(fixture(), config((c) => (c.cards.languages.count = 1))))).toEqual({ Ruby: 34.3, Other: 65.7 });
+  });
+
+  it('has no Other when every language fits', () => {
+    expect(shares(compute(fixture(), config((c) => (c.cards.languages.count = 5))))).toEqual({ Ruby: 34.3, C: 25.7, Batchfile: 22.9, Rust: 14.3, Python: 2.9 });
+  });
+
+  it('shows the next language instead of an Other under 0.5%', () => {
+    // With game's weight down, its C and Python are together under 0.5%: C takes the last place.
+    const m = compute(fixture(), config((c) => { c.cards.languages.count = 4; c.cards.languages.repos = { game: 0.01 }; }));
+    expect(m.languages.map((l) => l.name)).toEqual(['Ruby', 'Batchfile', 'Rust', 'C']);
+  });
+});
+
+describe('top repos', () => {
+  /** The fixture, with more repos of octo's: `stars` per name. */
+  const withRepos = (stars: Record<string, number>) => {
+    const s = fixture();
+    for (const [name, n] of Object.entries(stars)) {
+      const key = `octo/${name}`;
+      s.repos[key] = { nameWithOwner: key, owner: 'octo', ownerIsOrg: false, isPrivate: false, isFork: false, stars: n, languages: [] };
+      s.ownedRepos.push(key);
+    }
+    return s;
+  };
+  const names = (m: ReturnType<typeof compute>) => m.repos.map((r) => r.name);
+
+  it('lists your public repos by stars, with the stars of the last 12 months and the main language', () => {
+    const m = compute(fixture(), config());
+    // octo/secret is private and octo/fork a fork: never shown.
+    expect(m.repos).toEqual([{ name: 'game', stars: 120, recent: 20, language: { name: 'C', color: '#555555' } }]);
+  });
+
+  it('shows at most count of them, most stars first, ties by name, none without stars', () => {
+    const s = withRepos({ a: 5, b: 300, c: 5, d: 0, e: 1, f: 2, g: 3 });
+    expect(names(compute(s, config()))).toEqual(['b', 'game', 'a', 'c', 'g', 'f']);
+    expect(names(compute(s, config((c) => (c.cards.repos.count = 2))))).toEqual(['b', 'game']);
+  });
+
+  it('leaves out hidden ones, with a note for a name that matches nothing', () => {
+    const m = compute(withRepos({ b: 300 }), config((c) => (c.cards.repos.hide = ['b', 'octo/nope'])));
+    expect(names(m)).toEqual(['game']);
+    expect(m.notes).toContain('cards.repos.hide: "octo/nope" matched no repository you contributed to');
+  });
+
+  it('never shows a private repo, even when private work counts', () => {
+    const m = compute(fixture(), config((c) => (c.count.private = true)));
+    expect(names(m)).not.toContain('secret');
   });
 });
 

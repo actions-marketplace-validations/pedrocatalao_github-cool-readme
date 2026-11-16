@@ -103,3 +103,22 @@ export function fixture(): Snapshot {
     avatars: { big: 'data:image/png;base64,AAAA' },
   };
 }
+
+/** A year of days to 2026-11-04, the fixture's date: busier on weekdays, with quiet spells, the same every run. */
+export function yearCalendar(): Snapshot['calendar'] {
+  let seed = 42;
+  const rand = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+  const end = Date.parse('2026-11-04T00:00:00Z');
+  return Array.from({ length: 365 }, (_, i) => {
+    const time = end - (364 - i) * 864e5;
+    const weekday = (new Date(time).getUTCDay() + 6) % 7;
+    const quiet = rand() < (weekday >= 5 ? 0.35 : 0.12) || (i > 200 && i < 215); // the odd day off, and a holiday
+    const count = quiet ? 0 : Math.round(rand() ** 2 * (weekday >= 5 ? 25 : 40)) + 1;
+    return { date: new Date(time).toISOString().slice(0, 10), count };
+  });
+}
+
+/** The fixture with a full year of contributions, so the calendar cards (weekly, streaks) have something to show. */
+export function yearFixture(): Snapshot {
+  return { ...fixture(), calendar: yearCalendar() };
+}

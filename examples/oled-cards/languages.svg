@@ -2,7 +2,6 @@
 <title id="title">Most used languages</title>
 <desc id="desc">Java 24.9%, Shell 22.8%, Vue 18.3%, Python 14.4%, C++ 11.4%, C 8.2%</desc>
 <style>
-  text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif; }
   .ls0 { animation: ls0 21.6s infinite; }
   @keyframes ls0 { 0.000% { opacity: 1; transform: translateY(93px); animation-timing-function: steps(31); } 2.778% { opacity: 1; transform: translateY(0px); } 19.444% { opacity: 1; transform: translateY(0px); } 19.449% { opacity: 0; transform: translateY(0); } 100.000% { opacity: 0; transform: translateY(0); } }
   .lsh0 { animation: lsh0 21.6s infinite; }

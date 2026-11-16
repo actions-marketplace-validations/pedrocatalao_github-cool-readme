@@ -1,21 +1,21 @@
 // Shared pieces of the display cards: a grid of 3px cells, looks (amber, green, GitHub
 // colours), the panel with optional round LED dots, and keyframe helpers.
 
+import { PALETTE, THEMES, type Color, type Mode } from '../palette.ts';
+import { esc } from '../text.ts';
+
 export const PITCH = 3;
 
-// Every display card has the same size: 150 x 73 cells, 450 x 219, the classic cards' shape:
-// shown 400 wide, both are 400 x 195.
+// Every display card is 150 x 73 cells, 450 x 219: the size of every card, classic ones too
+// (render/classic.ts).
 export const COLS = 150;
 export const ROWS = 73;
 export const W = COLS * PITCH; // 450
 export const H = ROWS * PITCH; // 219
 /** The row of the title line at the top of every card. */
 export const TITLE_ROW = 3;
-const FONT = `-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif`;
 
 export type Cell = [number, number];
-export type Mode = 'light' | 'dark';
-export type Color = 'github' | 'amber' | 'green' | 'purple' | 'cyan' | 'red' | 'blue';
 
 export interface Look {
   /** Lit dots. */
@@ -34,33 +34,19 @@ export interface Look {
 }
 
 /**
- * A display's colours: bright on its dark panel, and for a light page without the panel a darker
- * shade (the bright ones fade on white) with a deeper one for the shine.
- */
-const DISPLAYS: Record<Exclude<Color, 'github'>, { bright: string; shine: string; panel: string; dark: string; deep: string; unlit: number }> = {
-  amber: { bright: '#ffab1a', shine: '#fff2cc', panel: '#0d0b07', dark: '#b35c00', deep: '#6e3800', unlit: 0.09 },
-  green: { bright: '#3dff74', shine: '#e8ffef', panel: '#070d09', dark: '#1a7f37', deep: '#0b4d1f', unlit: 0.08 },
-  purple: { bright: '#c77dff', shine: '#f3e6ff', panel: '#0c0710', dark: '#8250df', deep: '#4c2889', unlit: 0.1 },
-  cyan: { bright: '#22e3ff', shine: '#e0fbff', panel: '#050c0d', dark: '#0a7b8a', deep: '#054952', unlit: 0.08 },
-  red: { bright: '#ff4d4d', shine: '#ffe5e5', panel: '#0d0606', dark: '#cf222e', deep: '#82071e', unlit: 0.1 },
-  blue: { bright: '#4da3ff', shine: '#e3f0ff', panel: '#05080d', dark: '#0969da', deep: '#0a3069', unlit: 0.1 },
-};
-
-/**
  * The colours of a look. A colour is the same on both themes, like a real display, on its dark
  * panel; without the panel, a light page gets its darker shades. github follows the viewer's theme.
  */
 export function look(color: Color, mode: Mode, panel = true): Look {
   if (color !== 'github') {
-    const d = DISPLAYS[color];
+    const d = PALETTE[color].display;
     return !panel && mode === 'light'
       ? { lit: d.dark, accent: d.dark, shine: d.deep, dim: 0.65, panel: null, unlit: d.dark, unlitOpacity: 0.1 }
       : { lit: d.bright, accent: d.bright, shine: d.shine, dim: 0.55, panel: d.panel, unlit: d.bright, unlitOpacity: d.unlit };
   }
   // github: GitHub's Primer colours, on a transparent background, per light or dark theme.
-  return mode === 'light'
-    ? { lit: '#1f2328', accent: '#0969da', shine: '#0969da', dim: 0.6, panel: null, unlit: '#d1d9e0', unlitOpacity: 0.3 }
-    : { lit: '#f0f6fc', accent: '#4493f8', shine: '#4493f8', dim: 0.6, panel: null, unlit: '#3d444d', unlitOpacity: 0.35 };
+  const t = THEMES[mode];
+  return { lit: t.text, accent: t.accent, shine: t.accent, dim: 0.6, panel: null, unlit: t.border, unlitOpacity: mode === 'light' ? 0.3 : 0.35 };
 }
 
 /** Cells grouped into rectangles: neighbouring cells in a row form a run, and identical runs in rows that touch merge. */
@@ -136,17 +122,13 @@ export function dotsPath(cells: Cell[]): string {
 }
 
 export const DOT_SIZE = 2.4; // diameter of an LED, in a 3px cell
-let roundDots = false;
-/** Draw cells as round LEDs (the matrix) or as square pixels, for the card being rendered. */
-export function drawDots(on: boolean): void {
-  roundDots = on;
-}
 const dotted = (stroke: string) =>
   `fill="none" stroke="${stroke}" stroke-width="${DOT_SIZE}" stroke-linecap="round" stroke-dasharray="0 ${PITCH}"`;
 
-export function path(cells: Cell[], fill: string, attrs = ''): string {
+/** Cells in `fill`, as the style draws them: round LEDs (dot matrix) or square pixels (OLED). */
+export function path(style: Style, cells: Cell[], fill: string, attrs = ''): string {
   if (!cells.length) return '';
-  if (!roundDots) return `<path d="${cellsPath(cells)}" fill="${fill}"${attrs ? ' ' + attrs : ''}/>`;
+  if (!style.dots) return `<path d="${cellsPath(cells)}" fill="${fill}"${attrs ? ' ' + attrs : ''}/>`;
   const a = attrs.replace(/fill-opacity=/g, 'stroke-opacity=');
   return `<path d="${dotsPath(cells)}" ${dotted(fill)}${a ? ' ' + a : ''}/>`;
 }
@@ -176,27 +158,24 @@ export function keyframes(name: string, total: number, frames: { t: number; css:
   return `\n  @keyframes ${name} { ${body} }`;
 }
 
-export function esc(s: string): string {
-  return s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
-}
-
 /** How a display card is drawn. */
 export interface Style {
   look: Look;
   /** Round LED dots; otherwise the cells are drawn as solid square pixels. */
   dots: boolean;
+  /** With round dots: the faint unlit ones in every cell, behind the lit ones. */
+  grid: boolean;
   animations: boolean;
   /** The fill behind the dots; null for none, so the page shows through. */
   background: string | null;
 }
 
 export interface FrameOptions {
-  width: number;
-  height: number;
   title: string;
   desc: string;
   look: Look;
   dots: boolean;
+  grid: boolean;
   animations: boolean;
   background: string | null;
   css: string;
@@ -205,19 +184,18 @@ export interface FrameOptions {
 
 export function frame(o: FrameOptions): string {
   const { look: l } = o;
-  const panel = o.background ? `<rect x="0.5" y="0.5" width="${o.width - 1}" height="${o.height - 1}" rx="8" fill="${o.background}"/>` : '';
+  const panel = o.background ? `<rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="8" fill="${o.background}"/>` : '';
   // The unlit LEDs: one dotted line per row, faint. No masks or filters: Safari blurs those in images.
   let unlit = '';
-  if (o.dots) {
+  if (o.dots && o.grid) {
     const rows: string[] = [];
-    for (let y = PITCH / 2; y < o.height; y += PITCH) rows.push(`M${PITCH / 2} ${y}h${Math.floor(o.width / PITCH - 1) * PITCH + PITCH / 2}`);
+    for (let y = PITCH / 2; y < H; y += PITCH) rows.push(`M${PITCH / 2} ${y}h${(COLS - 1) * PITCH + PITCH / 2}`);
     unlit = `<path d="${rows.join('')}" ${dotted(l.unlit)} stroke-opacity="${l.unlitOpacity}"/>`;
   }
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${o.width}" height="${o.height}" viewBox="0 0 ${o.width} ${o.height}" fill="none" role="img" aria-labelledby="title desc">
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none" role="img" aria-labelledby="title desc">
 <title id="title">${esc(o.title)}</title>
 <desc id="desc">${esc(o.desc)}</desc>
-<style>
-  text { font-family: ${FONT}; }${o.animations ? o.css : ''}
+<style>${o.animations ? o.css : ''}
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
 </style>
 ${panel}

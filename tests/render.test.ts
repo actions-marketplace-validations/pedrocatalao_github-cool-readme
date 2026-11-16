@@ -1,9 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { compute, weekdayFacts } from '../src/compute.ts';
-import { DEFAULT_CONFIG, type Config } from '../src/config.ts';
-import { describe as describeItem, pageOffsets, renderContributions } from '../src/render/contributions.ts';
+import { weekdayFacts } from '../src/cards/weekly/data.ts';
+import { compute } from '../src/compute.ts';
+import { CARDS, DEFAULT_CARDS, DEFAULT_CONFIG, STYLES, type Config } from '../src/config.ts';
+import { describe as describeItem, pageOffsets, renderContributions } from '../src/cards/contributions/classic.ts';
 import { renderAll } from '../src/render/index.ts';
-import { THEMES, formatCompact, truncate } from '../src/render/svg.ts';
+import { THEMES } from '../src/palette.ts';
+import { CARD_HEIGHT, PAD, truncate } from '../src/render/classic.ts';
+import { formatCompact } from '../src/text.ts';
+import { renderLanguages } from '../src/cards/languages/classic.ts';
+import { MAX_LANGUAGES } from '../src/cards/languages/index.ts';
+import { renderRepos } from '../src/cards/repos/classic.ts';
+import { MAX_REPOS } from '../src/cards/repos/index.ts';
 import { fixture } from './fixtures/snapshot.ts';
 
 /** Minimal well-formedness check: every opened tag is closed in order. */
@@ -25,17 +32,17 @@ const render = (patch: (c: Config) => void = () => {}) => {
 };
 
 describe('cards', () => {
+  // Every card, so a new one is checked here without being listed.
+  const everyCard = (c: Config) => (c.show = [...CARDS]);
+  const names = (cards: readonly string[]) => cards.flatMap((card) => [`${card}-dark.svg`, `${card}-light.svg`]).sort();
+
   it('writes a light and a dark variant of each card', () => {
-    expect(Object.keys(render()).sort()).toEqual([
-      'contributions-dark.svg', 'contributions-light.svg',
-      'languages-dark.svg', 'languages-light.svg',
-      'summary-dark.svg', 'summary-light.svg',
-      'weekly-dark.svg', 'weekly-light.svg',
-    ]);
+    expect(Object.keys(render()).sort()).toEqual(names(DEFAULT_CARDS));
+    expect(Object.keys(render(everyCard)).sort()).toEqual(names(CARDS));
   });
 
   it('makes only the cards in the show setting, in every style', () => {
-    for (const style of ['classic', 'oled', 'dotmatrix'] as const) {
+    for (const style of STYLES) {
       const files = render((c) => { c.look.style = style; c.show = ['weekly', 'summary']; });
       expect(Object.keys(files).sort()).toEqual(['summary-dark.svg', 'summary-light.svg', 'weekly-dark.svg', 'weekly-light.svg']);
       // The same cards as when all are made: leaving some out changes nothing in the others.
@@ -44,17 +51,46 @@ describe('cards', () => {
     }
   });
 
-  it('produces well-formed SVG with no missing values', () => {
-    for (const [name, svg] of Object.entries(render())) {
-      assertWellFormed(svg);
-      expect(svg, name).not.toMatch(/NaN|undefined|null|Infinity/);
+  it('produces well-formed SVG with no missing values, every card in every style', () => {
+    for (const style of STYLES) {
+      for (const [name, svg] of Object.entries(render((c) => { everyCard(c); c.look.style = style; }))) {
+        assertWellFormed(svg);
+        expect(svg, `${style} ${name}`).not.toMatch(/NaN|undefined|null|Infinity/);
+      }
     }
   });
 
-  it('makes the cards one size', () => {
+  it('makes every card one size, 450 x 219, in every style', () => {
     const size = (svg: string) => svg.match(/<svg [^>]*width="(\d+)" height="(\d+)"/)!.slice(1).join('x');
-    const files = render();
-    for (const card of ['summary', 'contributions', 'languages', 'weekly']) expect(size(files[`${card}-light.svg`])).toBe('400x195');
+    for (const style of STYLES) {
+      const files = render((c) => { everyCard(c); c.look.style = style; });
+      for (const card of CARDS) expect(size(files[`${card}-light.svg`]), `${style} ${card}`).toBe('450x219');
+    }
+  });
+
+  it('fits the most languages there can be, Other included, with room below them', () => {
+    const items = Array.from({ length: MAX_LANGUAGES }, (_, i) => ({ name: i ? `Language ${i}` : 'Other', color: null, percent: 100 / MAX_LANGUAGES }));
+    const svg = renderLanguages(items, THEMES.light, DEFAULT_CONFIG);
+    // Each entry is a dot and a line of text, 12px tall, at its row's y; below the last, the card's padding.
+    const rows = [...svg.matchAll(/<g transform="translate\(\d+(?:\.\d+)? (\d+(?:\.\d+)?)\)"><g class="fade"/g)].map((m) => Number(m[1]));
+    expect(rows).toHaveLength(MAX_LANGUAGES);
+    expect(Math.max(...rows) + 12).toBeLessThanOrEqual(CARD_HEIGHT - PAD);
+  });
+
+  it('fits the most repos there can be, with room below them', () => {
+    const items = Array.from({ length: MAX_REPOS }, (_, i) => ({ name: `repo-${i}`, stars: 1000 - i, recent: 10, language: null }));
+    const svg = renderRepos(items, THEMES.light, DEFAULT_CONFIG);
+    // Each entry is a name and a line under it, 34px tall, at its row's y; below the last, the card's padding.
+    const rows = [...svg.matchAll(/<g transform="translate\(\d+(?:\.\d+)? (\d+(?:\.\d+)?)\)"><g class="fade"/g)].map((m) => Number(m[1]));
+    expect(rows).toHaveLength(MAX_REPOS);
+    expect(Math.max(...rows) + 34).toBeLessThanOrEqual(CARD_HEIGHT - PAD);
+  });
+
+  it('draws every display card in dots, with no text set in a font', () => {
+    for (const style of STYLES.filter((s) => s !== 'classic')) {
+      const files = render((c) => { everyCard(c); c.look.style = style; });
+      for (const card of CARDS) expect(files[`${card}-light.svg`], `${style} ${card}`).not.toContain('<text');
+    }
   });
 
   it('shows the summary numbers for the year and all time in turn, or all time without animations', () => {

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_CONFIG, parseConfig, repoKey, usesOldLayout } from '../src/config.ts';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { ConfigError, DEFAULT_CONFIG, loadConfig, parseConfig } from '../src/config.ts';
+import { repoKey } from '../src/repos.ts';
+import { usesOldLayout } from '../src/legacy.ts';
 
 describe('config', () => {
   it('uses the defaults for an empty file', () => {
@@ -15,15 +20,41 @@ describe('config', () => {
     expect(c.look).toEqual(DEFAULT_CONFIG.look);
   });
 
+  it("says where a file isn't YAML, and how to fix it", () => {
+    const text = 'show: [about]\ncards:\n  about:\n    lines:\n      - "at <a href="https://example.com/">Example</a>"\n';
+    const err = (() => {
+      try {
+        parseConfig(text);
+      } catch (e) {
+        return e;
+      }
+    })();
+    expect(err).toBeInstanceOf(ConfigError);
+    expect((err as ConfigError).message).toMatch(/^the settings file isn't valid YAML at line 5, column \d+: /);
+    expect((err as ConfigError).message).toContain('- "at <a href="https://example.com/">Example</a>"');
+    expect((err as ConfigError).message).toContain('run setup again, answer no to "Keep it?"');
+    expect((err as ConfigError).at).toMatchObject({ line: 5 });
+
+    const dir = mkdtempSync(join(tmpdir(), 'cool-readme-config-'));
+    try {
+      writeFileSync(join(dir, 'cool-readme.yml'), text);
+      expect(() => loadConfig(join(dir, 'cool-readme.yml'))).toThrow(`${join(dir, 'cool-readme.yml')} isn't valid YAML at line 5`);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it('rejects unknown settings, so typos do not pass silently', () => {
     expect(() => parseConfig('cards:\n  languages:\n    hid: [PHP]\n')).toThrow('unknown setting "cards.languages.hid"');
     expect(() => parseConfig('look:\n  matrix: false\n')).toThrow('unknown setting "look.matrix"');
   });
 
   it('rejects wrong types and values', () => {
+    expect(() => parseConfig('cards:\n  languages:\n    count: 7\n')).toThrow('"cards.languages.count" must be at most 6, "Other" included');
+    expect(() => parseConfig('cards:\n  repos:\n    count: 7\n')).toThrow('"cards.repos.count" must be at most 6');
     expect(() => parseConfig('cards:\n  languages:\n    count: six\n')).toThrow('"cards.languages.count" must be a positive whole number');
     expect(() => parseConfig('cards:\n  languages:\n    repos:\n      a: -1\n')).toThrow('cards.languages.repos');
-    expect(() => parseConfig('look:\n  style: fancy\n')).toThrow('"look.style" must be "classic", "oled" or "dotmatrix"');
+    expect(() => parseConfig('look:\n  style: fancy\n')).toThrow('"look.style" must be "classic", "oled", "dotmatrix" or "floating"');
     expect(() => parseConfig('look:\n  color: pink\n')).toThrow('"look.color" must be "github", "amber", "green", "purple", "cyan", "red" or "blue"');
     expect(() => parseConfig('look:\n  background: pink\n')).toThrow('"look.background" must be none or a colour like 030506');
     expect(() => parseConfig('look:\n  background: #030506\n')).toThrow('without #');

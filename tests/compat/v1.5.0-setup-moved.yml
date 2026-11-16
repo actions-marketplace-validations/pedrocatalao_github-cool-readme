@@ -1,0 +1,30 @@
+# As written by setup.sh v1.5.0 to v1.6.1 when it moved the README full example of v1.0.0 to v1.4.2: "repos:" with nothing under it
+user: null              # defaults to the token's owner
+show: [summary, languages, contributions, weekly]   # the cards to make
+count:
+  private: true
+  orgs: true            # repos of organizations you belong to
+look:
+  style: classic
+  color: amber
+  background: none
+  animations: true
+  border: false
+cards:
+  summary:
+    title: null          # small, on the header line
+    ring: percent         # or github: the GitHub logo in the ring, the percentage in the title
+  languages:
+    title: Most used languages   # null hides it
+    count: 6
+    hide: []           # language names; their share is dropped
+    repos:
+    other: true           # fold the rest into "Other"; false: the shown ones share 100%
+  contributions:
+    title: Notable contributions
+    count: 6              # 3 in view at a time; the rest scroll past in a loop
+    open: true
+    pin: []               # shown first; pull requests closed without merging never count
+    hide: []
+  weekly:
+    title: Weekly rhythm

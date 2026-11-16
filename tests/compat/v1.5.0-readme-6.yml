@@ -1,0 +1,43 @@
+# As released in v1.5.0: README.md, settings example 6
+user: null                # defaults to the token's owner
+
+show: [summary, languages, contributions, weekly]   # the cards, in README order; [] for none
+                          # also: streaks, about
+
+count:
+  private: true           # private repos in the numbers
+  orgs: true              # repos of organizations you belong to
+
+look:
+  style: classic          # classic, oled (square pixels) or dotmatrix (round LEDs)
+  color: github           # GitHub's blue and greens; amber or green: what highlights, in that colour
+  animations: true        # false: still cards
+  background: none        # the page shows through (amber and green go darker on light pages), or a colour
+                          # without #, like 030506: the same for every viewer, the text in shades that suit it
+  border: false           # classic only: a thin outline, like GitHub's boxes
+
+cards:
+  summary:
+    title: null           # small, on the header line
+    ring: percent         # or github: the GitHub logo in the ring, the percentage in the title
+  languages:
+    title: Most used languages   # null hides it
+    count: 6
+    hide: []              # language names; their share is dropped
+    repos: {}             # weight per repo, "repo" for your own, "owner/repo" otherwise; 0 leaves it out
+    other: true           # fold the rest into "Other"; false: the shown ones share 100%
+  contributions:
+    title: Notable contributions
+    count: 6              # 3 in view at a time; the rest scroll past in a loop
+    open: true            # open pull requests count too, not only merged ones
+    pin: []               # shown first; pull requests closed without merging never count
+    hide: []
+  weekly:
+    title: Weekly rhythm
+  streaks:
+    title: Streaks
+  about:
+    title: About
+    headline: null        # shown large
+    lines: []             # a line each; they're not wrapped, and more than fit scroll past
+    facts: {}             # label: text, a line each under the lines

@@ -1,0 +1,4 @@
+# As released in v1.1.0: README.md, settings example 5
+style: oled
+matrix: false
+color: amber

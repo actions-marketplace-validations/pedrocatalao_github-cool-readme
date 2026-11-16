@@ -1,0 +1,1412 @@
+{
+  "v1.0.0-example.yml": {
+    "oldLayout": true,
+    "user": "pedrocatalao",
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "github",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "github"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [
+          "Batchfile",
+          "PHP",
+          "HCL",
+          "Jinja",
+          "JavaScript"
+        ],
+        "repos": {
+          "juca": 0
+        },
+        "other": false
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": [
+          "anuraghazra/github-readme-stats"
+        ]
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.0.0-readme-1.yml": {
+    "oldLayout": true,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "github",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.1.0-readme-1.yml": {
+    "oldLayout": true,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "github",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "github"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.1.0-readme-2.yml": {
+    "oldLayout": true,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "dotmatrix",
+      "color": "amber",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.1.0-readme-3.yml": {
+    "oldLayout": true,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "dotmatrix",
+      "color": "green",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.1.0-readme-4.yml": {
+    "oldLayout": true,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "dotmatrix",
+      "color": "github",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.1.0-readme-5.yml": {
+    "oldLayout": true,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "oled",
+      "color": "amber",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.1.0-readme-6.yml": {
+    "oldLayout": true,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "amber",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.2.0-readme-6.yml": {
+    "oldLayout": true,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "amber",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.4.0-readme-6.yml": {
+    "oldLayout": true,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "amber",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.4.2-readme-6.yml": {
+    "oldLayout": true,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "amber",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.5.0-example.yml": {
+    "oldLayout": false,
+    "user": "pedrocatalao",
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "github",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "github"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [
+          "Batchfile",
+          "PHP",
+          "HCL",
+          "Jinja",
+          "JavaScript"
+        ],
+        "repos": {
+          "juca": 0
+        },
+        "other": false
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": [
+          "anuraghazra/github-readme-stats"
+        ]
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.5.0-readme-1.yml": {
+    "oldLayout": false,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "github",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "github"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.5.0-readme-2.yml": {
+    "oldLayout": false,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "dotmatrix",
+      "color": "amber",
+      "animations": true,
+      "background": "#0d0b07",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.5.0-readme-3.yml": {
+    "oldLayout": false,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "dotmatrix",
+      "color": "github",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.5.0-readme-4.yml": {
+    "oldLayout": false,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "dotmatrix",
+      "color": "green",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.5.0-readme-5.yml": {
+    "oldLayout": false,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "oled",
+      "color": "amber",
+      "animations": true,
+      "background": "#0d0b07",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.5.0-readme-6.yml": {
+    "oldLayout": false,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "github",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.5.0-setup-moved.yml": {
+    "oldLayout": false,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "amber",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.5.1-readme-6.yml": {
+    "oldLayout": false,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "github",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.6.0-readme-1.yml": {
+    "oldLayout": false,
+    "user": null,
+    "show": [
+      "about",
+      "languages",
+      "summary",
+      "contributions"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "github",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.6.0-readme-2.yml": {
+    "oldLayout": false,
+    "user": null,
+    "show": [
+      "streaks",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "amber",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.6.0-readme-7.yml": {
+    "oldLayout": false,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "classic",
+      "color": "github",
+      "animations": true,
+      "background": "none",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  },
+  "v1.6.1-readme-6.yml": {
+    "oldLayout": false,
+    "user": null,
+    "show": [
+      "summary",
+      "languages",
+      "contributions",
+      "weekly"
+    ],
+    "count": {
+      "private": true,
+      "orgs": true
+    },
+    "look": {
+      "style": "oled",
+      "color": "purple",
+      "animations": true,
+      "background": "#0b0710",
+      "border": false
+    },
+    "cards": {
+      "summary": {
+        "title": null,
+        "ring": "percent"
+      },
+      "languages": {
+        "title": "Most used languages",
+        "count": 6,
+        "hide": [],
+        "repos": {},
+        "other": true
+      },
+      "contributions": {
+        "title": "Notable contributions",
+        "count": 6,
+        "open": true,
+        "pin": [],
+        "hide": []
+      },
+      "weekly": {
+        "title": "Weekly rhythm"
+      },
+      "streaks": {
+        "title": "Streaks"
+      },
+      "about": {
+        "title": "About",
+        "headline": null,
+        "lines": [],
+        "facts": {}
+      },
+      "repos": {
+        "title": "Top repos",
+        "count": 6,
+        "hide": []
+      }
+    }
+  }
+}

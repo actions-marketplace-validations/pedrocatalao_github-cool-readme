@@ -1,0 +1,5 @@
+# As released in v1.5.0: README.md, settings example 2
+look:
+  style: dotmatrix
+  color: amber
+  background: 0d0b07    # a colour of your own, without #; leave out for none

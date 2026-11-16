@@ -2,7 +2,7 @@
 // with a pinball-style effect, in an endless loop. All movement jumps a whole dot at a time.
 
 import { charCells, textCells } from './font.ts';
-import { H as height, PITCH, W as width, keyframes, maskPath, path, type Cell, type Look } from './dmd.ts';
+import { H as height, PITCH, W as width, keyframes, maskPath, path, type Cell, type Style } from './dmd.ts';
 
 export type Effect = 'sparkle' | 'push' | 'wipe' | 'flash' | 'type';
 export const EFFECTS: Effect[] = ['sparkle', 'push', 'wipe', 'flash', 'type'];
@@ -45,7 +45,8 @@ export interface Slideshow {
  * Slides take turns in `region`, entering with `effects` in turn. `id` keeps the classes unique
  * within a card. A single slide shows still, without effects.
  */
-export function slideshow(id: string, slides: Item[][], region: Region, look: Look, effects: Effect[] = EFFECTS): Slideshow {
+export function slideshow(id: string, slides: Item[][], region: Region, style: Style, effects: Effect[] = EFFECTS): Slideshow {
+  const { look } = style;
   const total = slides.length * HOLD;
   const P = id; // class prefix
   let css = '';
@@ -57,8 +58,8 @@ export function slideshow(id: string, slides: Item[][], region: Region, look: Lo
 
   const draw = (item: Item, fill?: string) =>
     'text' in item
-      ? path(textCells(item.text, item.col, item.row, item.scale ?? 1), fill ?? (item.accent ? look.accent : look.lit), item.dim ? `fill-opacity="${look.dim}"` : '')
-      : path(item.cells, item.fill ?? fill ?? look.lit, item.opacity !== undefined ? `fill-opacity="${item.opacity}"` : item.dim ? `fill-opacity="${look.dim}"` : '');
+      ? path(style, textCells(item.text, item.col, item.row, item.scale ?? 1), fill ?? (item.accent ? look.accent : look.lit), item.dim ? `fill-opacity="${look.dim}"` : '')
+      : path(style, item.cells, item.fill ?? fill ?? look.lit, item.opacity !== undefined ? `fill-opacity="${item.opacity}"` : item.dim ? `fill-opacity="${look.dim}"` : '');
 
   const markup = slides.map((items, i) => {
     let content = items.map((it) => draw(it)).join('');
@@ -126,7 +127,7 @@ export function slideshow(id: string, slides: Item[][], region: Region, look: Lo
               { t: total - 0.001, css: 'opacity: 1;', ease: 'steps(1, end)' },
               { t: total, css: 'opacity: 0;' },
             ]);
-            return path(ch.cells, ch.accent ? look.accent : look.lit, `class="${P}t${i}c${j}"${ch.dim ? ` fill-opacity="${look.dim}"` : ''}`);
+            return path(style, ch.cells, ch.accent ? look.accent : look.lit, `class="${P}t${i}c${j}"${ch.dim ? ` fill-opacity="${look.dim}"` : ''}`);
           })
           .join('');
     }
@@ -174,7 +175,7 @@ export function slideshow(id: string, slides: Item[][], region: Region, look: Lo
       content = `<g mask="url(#${P}wi${i})">${content}</g>`;
       const bar: Cell[] = [];
       for (let r = region.row + 1; r < region.row + region.rows - 1; r++) bar.push([region.col, r], [region.col + 1, r]);
-      overlays += path(bar, look.lit, `class="${P}wb${i}" opacity="0"`);
+      overlays += path(style, bar, look.lit, `class="${P}wb${i}" opacity="0"`);
       const travel = px(region.cols - 2);
       css += `\n  .${P}wb${i} { animation: ${P}wb${i} ${total}s infinite; }` + keyframes(`${P}wb${i}`, total, [
         { t: 0, css: 'opacity: 0; transform: translateX(0);' },

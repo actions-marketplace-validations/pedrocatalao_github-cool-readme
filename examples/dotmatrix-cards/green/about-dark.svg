@@ -2,7 +2,6 @@
 <title id="title">About</title>
 <desc id="desc">Hi, I&#39;m Pedro I&#39;m a software architect with 20+ years of experience. Cloud infra, CI/CD and backend, mostly Java. Porting classic games natively, with extras. I fly airplanes and go wild camping offroad. I also race go-karts competitively. Based in: Santarem Currently: Diving into emulators</desc>
 <style>
-  text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif; }
   .bs0 { animation: bs0 28.8s infinite; }
   @keyframes bs0 { 0.000% { opacity: 1; transform: translateY(0px); } 14.583% { opacity: 1; transform: translateY(0px); } 14.587% { opacity: 0; transform: translateY(0); } 100.000% { opacity: 0; transform: translateY(0); } }
   .bsh0 { animation: bsh0 28.8s infinite; }

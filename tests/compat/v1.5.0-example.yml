@@ -1,0 +1,21 @@
+# As released in v1.5.0: examples/cool-readme.yml
+user: pedrocatalao
+count:
+  private: true
+  orgs: true
+look:
+  style: classic
+  color: github
+  background: none
+cards:
+  languages:
+    count: 6
+    hide: [Batchfile, PHP, HCL, Jinja, JavaScript]
+    repos:
+      juca: 0
+    other: false
+  contributions:
+    open: true
+    hide: [anuraghazra/github-readme-stats]
+  summary:
+    ring: github

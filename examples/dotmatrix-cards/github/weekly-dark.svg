@@ -2,7 +2,6 @@
 <title id="title">Weekly rhythm</title>
 <desc id="desc">Contributions per weekday over the last 12 months: Mon 868, Tue 857, Wed 806, Thu 724, Fri 528, Sat 636, Sun 604. Busiest: Mon. Quietest: Fri. On weekdays: 75%.</desc>
 <style>
-  text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif; }
   .wspall { animation: wspall 10.6s infinite; }
   @keyframes wspall { 0.000% { opacity: 0; } 5.660% { opacity: 0; animation-timing-function: steps(1, end); } 5.670% { opacity: 1; } 99.991% { opacity: 1; animation-timing-function: steps(1, end); } 100.000% { opacity: 0; } }
   .wsp0 { animation: wsp0 10.6s infinite; }

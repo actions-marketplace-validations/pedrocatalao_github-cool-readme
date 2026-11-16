@@ -12,6 +12,10 @@
     "dev": "node src/cli.ts --config examples/cool-readme.yml --out out --snapshot .cache/snapshot.json --preview",
     "dev:offline": "node src/cli.ts --config examples/cool-readme.yml --out out --from-snapshot .cache/snapshot.json --preview",
     "test": "vitest run",
+    "test:update": "vitest run --update",
+    "review": "node scripts/review.ts",
+    "lint:sh": "bash scripts/lint-setup.sh",
+    "release": "bash scripts/release.sh",
     "typecheck": "tsc",
     "preview": "node scripts/preview.ts",
     "examples": "node scripts/examples.ts"

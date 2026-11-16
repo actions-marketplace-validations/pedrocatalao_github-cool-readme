@@ -1,0 +1,6 @@
+# As released in v1.5.0: README.md, settings example 1
+look:
+  style: classic
+cards:
+  summary:
+    ring: github        # the GitHub logo in the ring; leave out for the percentage

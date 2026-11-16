@@ -2,7 +2,6 @@
 <title id="title">Streaks</title>
 <desc id="desc">Current streak: 3 days. Longest streak: 68 days. Active days: 316. Per active day: 16. Best day · May 9, 2026: 90. Best month · May 2026: 688.</desc>
 <style>
-  text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif; }
   .ss0 { animation: ss0 21.6s infinite; }
   @keyframes ss0 { 0.000% { opacity: 1; transform: translateY(156px); animation-timing-function: steps(52); } 2.778% { opacity: 1; transform: translateY(0px); } 19.444% { opacity: 1; transform: translateY(0px); } 19.449% { opacity: 0; transform: translateY(0); } 100.000% { opacity: 0; transform: translateY(0); } }
   .ssh0 { animation: ssh0 21.6s infinite; }

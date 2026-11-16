@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { compute } from '../src/compute.ts';
-import { COLORS, DEFAULT_CONFIG, parseConfig, type Config } from '../src/config.ts';
-import { cellsPath, dotsPath, look, ringCells } from '../src/display/dmd.ts';
+import { CARDS, COLORS, DEFAULT_CONFIG, parseConfig, type Config } from '../src/config.ts';
+import { cellsPath, dotsPath, look, path, ringCells, type Style } from '../src/display/dmd.ts';
 import { textCells, textWidth } from '../src/display/font.ts';
 import { rasterize } from '../src/display/raster.ts';
-import { renderDisplayContributions } from '../src/display/contributions.ts';
+import { renderDisplayContributions } from '../src/cards/contributions/display.ts';
 import { slideshow } from '../src/display/slides.ts';
 import { cardWidths, renderAll } from '../src/render/index.ts';
 import { fixture } from './fixtures/snapshot.ts';
@@ -87,8 +87,33 @@ describe('shapes as dots', () => {
   });
 });
 
+describe('drawing cells', () => {
+  const style = (dots: boolean): Style => ({ look: look('amber', 'dark'), dots, grid: true, animations: true, background: null });
+  const cells: [number, number][] = [[0, 0], [1, 0], [2, 0]];
+
+  it('draws round dots or square pixels as the style says, whatever was drawn before', () => {
+    const dots = path(style(true), cells, '#fff');
+    const pixels = path(style(false), cells, '#fff');
+    expect(dots).toContain('stroke-linecap="round"');
+    expect(pixels).not.toContain('stroke-linecap');
+    // In any order: nothing is left over from one card to the next.
+    expect(path(style(true), cells, '#fff')).toBe(dots);
+    expect(path(style(false), cells, '#fff')).toBe(pixels);
+  });
+
+  it('draws the same card the same, whichever card was drawn before', () => {
+    const render = (s: string) => {
+      const c = parseConfig(`show: [summary, weekly]\nlook:\n  style: ${s}\n`);
+      return renderAll(compute(fixture(), c), c);
+    };
+    const first = render('oled');
+    render('dotmatrix');
+    expect(render('oled')).toEqual(first);
+  });
+});
+
 describe('slideshow', () => {
-  const style = look('amber', 'dark');
+  const style = { look: look('amber', 'dark'), dots: true, grid: true, animations: true, background: null };
   const slides = [1, 2, 3].map((n) => [{ text: `S${n}`, col: 0, row: 0 }]);
 
   it('hides every slide but the last at the end of the loop', () => {
@@ -176,11 +201,11 @@ describe('oled cards', () => {
   });
 
   it('shows an empty contributions card', () => {
-    expect(renderDisplayContributions([], 'Notable contributions', { look: look('green', 'dark'), dots: true, animations: true, background: null })).toContain('No contributions');
+    expect(renderDisplayContributions([], 'Notable contributions', { look: look('green', 'dark'), dots: true, grid: true, animations: true, background: null })).toContain('No contributions');
   });
 
   it('is shown at 400 wide so two fit a row', () => {
-    expect(Object.values(cardWidths({ ...DEFAULT_CONFIG, look: { ...DEFAULT_CONFIG.look, style: 'oled' } }))).toEqual([400, 400, 400, 400, 400, 400]);
+    expect(Object.values(cardWidths({ ...DEFAULT_CONFIG, look: { ...DEFAULT_CONFIG.look, style: 'oled' } }))).toEqual(CARDS.map(() => 400));
   });
 });
 
@@ -193,6 +218,25 @@ describe('settings', () => {
     expect(files('dotmatrix')).toContain('stroke-dasharray="0 3"'); // round LEDs
     expect(files('oled')).not.toContain('stroke-dasharray="0 3"'); // square pixels
     expect(files('oled')).toContain('#3dff74');
+  });
+
+  it('draws floating as dotmatrix without the unlit dots, every card, every colour', () => {
+    const all = (style: string, color: string, background: string) => {
+      const c = parseConfig(`show: [${CARDS.join(', ')}]\nlook:\n  style: ${style}\n  color: ${color}\n  background: ${background}\n`);
+      return renderAll(compute(fixture(), c), c);
+    };
+    // The unlit dots: the one path in the faint opacity, right after the panel.
+    const unlit = /\n<path d="M1\.5 1\.5[^"]*" fill="none" stroke="[^"]+" stroke-width="2\.4" stroke-linecap="round" stroke-dasharray="0 3" stroke-opacity="[\d.]+"\/>/;
+    for (const color of COLORS) {
+      for (const background of ['none', '0d1117']) {
+        const grid = all('dotmatrix', color, background);
+        const floating = all('floating', color, background);
+        for (const [name, svg] of Object.entries(grid)) {
+          expect(svg, `${color} ${background} ${name}`).toMatch(unlit);
+          expect(floating[name], `${color} ${background} ${name}`).toBe(svg.replace(unlit, '\n'));
+        }
+      }
+    }
   });
 
   it('has every colour, each with its own shades, in every style', () => {

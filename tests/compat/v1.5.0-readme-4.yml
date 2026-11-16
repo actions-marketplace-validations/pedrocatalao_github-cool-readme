@@ -1,0 +1,4 @@
+# As released in v1.5.0: README.md, settings example 4
+look:
+  style: dotmatrix
+  color: green

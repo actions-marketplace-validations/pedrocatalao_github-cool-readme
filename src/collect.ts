@@ -1,4 +1,5 @@
-import { repoKey, type Config } from './config.ts';
+import type { Config } from './config.ts';
+import { repoKey } from './repos.ts';
 import { fetchDataUri, type Client } from './github.ts';
 import type { ContributionWindow, PullRequest, PullRequestState, Repo, RepoCounts, Snapshot } from './types.ts';
 

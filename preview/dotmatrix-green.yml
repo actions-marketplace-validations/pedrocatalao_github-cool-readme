@@ -1,5 +1,4 @@
 # Preview: npm run preview, then open out/preview/index.html
-show: [summary, languages, contributions, weekly, streaks, about]
 look:
   style: dotmatrix
   color: green

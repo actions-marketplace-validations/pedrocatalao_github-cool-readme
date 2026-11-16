@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the review renders the cards as they were at the base commit
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      # Includes the golden test: every card in every look, compared with tests/golden/hashes.txt.
+      - run: npm test
+      # The cards that differ from the base, before and after, as a page to download: on a pull
+      # request against its base branch, on a push against the commit before.
+      - name: Review the cards that changed
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: npm run review -- --base "$BASE"
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'HEAD^' }}
+      - name: Upload the review
+        if: ${{ !cancelled() && hashFiles('out/review/after/**') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-review
+          path: out/review
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: shellcheck --version && bash scripts/lint-setup.sh

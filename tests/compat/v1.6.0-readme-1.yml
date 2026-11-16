@@ -1,0 +1,4 @@
+# As released in v1.6.0: README.md, settings example 1
+show: [about, languages, summary, contributions]
+look:
+  style: classic

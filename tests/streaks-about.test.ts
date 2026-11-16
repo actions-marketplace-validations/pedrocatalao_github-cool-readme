@@ -1,12 +1,14 @@
 // The streaks and about cards.
 import { describe, expect, it } from 'vitest';
 import { compute } from '../src/compute.ts';
-import { CARDS, DEFAULT_CONFIG, parseConfig, type Config } from '../src/config.ts';
+import { CARD_DEFS } from '../src/cards/index.ts';
+import { DEFAULT_CONFIG, parseConfig, type Config } from '../src/config.ts';
 import { renderAll } from '../src/render/index.ts';
-import { wrap } from '../src/display/about.ts';
+import { wrap } from '../src/cards/about/display.ts';
 import { textCells } from '../src/display/font.ts';
-import { marked, markedText, unmarked, wrapMarked } from '../src/render/svg.ts';
-import { streakDays, streakLengths, streakStats } from '../src/stats.ts';
+import { markedText, wrapMarked } from '../src/render/classic.ts';
+import { marked, unmarked } from '../src/text.ts';
+import { streakDays, streakLengths, streakStats } from '../src/cards/streaks/data.ts';
 import { fixture } from './fixtures/snapshot.ts';
 
 const render = (card: 'streaks' | 'about', patch: (c: Config) => void = () => {}) => {
@@ -40,7 +42,7 @@ describe('streaks', () => {
   });
 
   it('reports the streaks, active days and the best day and month', () => {
-    const stats = compute(fixture(), DEFAULT_CONFIG).streaks;
+    const stats = compute(fixture(), DEFAULT_CONFIG).streaks.tiles;
     // The last 12 months' calendar, Oct 1-10: 0 0 0 0 4 5 6 7 8 9.
     expect(tile(stats, 'Current streak')).toBe('6 days');
     expect(tile(stats, 'Longest streak')).toBe('6 days');
@@ -87,9 +89,9 @@ describe('streaks', () => {
     expect(still).toContain('transform="translate(374 0) scale(6 1)"'); // over its days
   });
 
-  it('is a 400 by 195 card', () => {
+  it('is a 450 by 219 card', () => {
     const svg = render('streaks');
-    expect(svg).toMatch(/<svg [^>]*width="400" height="195"/);
+    expect(svg).toMatch(/<svg [^>]*width="450" height="219"/);
     expect(svg).toContain('STREAKS');
     expect(svg).toContain('Longest streak');
   });
@@ -104,10 +106,10 @@ describe('about', () => {
     expect(() => parseConfig('about:\n  facts: { Focus: 3 }\n')).toThrow('"about.facts" must be a mapping of label to text');
   });
 
-  it('shows the headline, the lines and the facts on a 400 by 195 card', () => {
+  it('shows the headline, the lines and the facts on a 450 by 219 card', () => {
     const svg = render('about', (c) => { c.cards.about.headline = 'Hello'; c.cards.about.lines = ['Line one']; c.cards.about.facts = { Focus: 'Tools' }; });
     for (const text of ['Hello', 'Line one', 'FOCUS', 'Tools']) expect(svg).toContain(text);
-    expect(svg).toMatch(/<svg [^>]*width="400" height="195"/);
+    expect(svg).toMatch(/<svg [^>]*width="450" height="219"/);
   });
 
   it('scrolls the lines that don\'t fit slowly up to the last, then crossfades back to the start, the headline staying', () => {
@@ -166,9 +168,11 @@ describe('about', () => {
 
 describe('the new cards', () => {
   it('are off unless listed', () => {
-    expect(CARDS).toEqual(expect.arrayContaining(['streaks', 'about']));
-    expect(DEFAULT_CONFIG.show).toEqual(['summary', 'languages', 'contributions', 'weekly']);
-    expect(Object.keys(renderAll(compute(fixture(), DEFAULT_CONFIG), DEFAULT_CONFIG))).not.toContain('streaks-light.svg');
+    const off = CARD_DEFS.filter((c) => !c.on).map((c) => c.name);
+    expect(off).toEqual(expect.arrayContaining(['streaks', 'about']));
+    // Like every card that's off: not made unless listed.
+    const made = Object.keys(renderAll(compute(fixture(), DEFAULT_CONFIG), DEFAULT_CONFIG));
+    for (const card of off) expect(made).not.toContain(`${card}-light.svg`);
   });
 
   it('come as dot-matrix displays with the oled style, the shape of the others', () => {

@@ -1,0 +1,5 @@
+# As released in v1.5.0: README.md, settings example 5
+look:
+  style: oled
+  color: amber
+  background: 0d0b07

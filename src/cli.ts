@@ -1,9 +1,10 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { collect } from './collect.ts';
 import { compute } from './compute.ts';
-import { ConfigError, DEFAULT_CONFIG, loadConfig, usesOldLayout } from './config.ts';
+import { ConfigError, DEFAULT_CONFIG, SETUP_COMMAND, loadConfig } from './config.ts';
+import { usesOldLayout } from './legacy.ts';
 import { createClient } from './github.ts';
 import { previewHtml } from './preview.ts';
 import { cardWidths, renderAll } from './render/index.ts';
@@ -22,6 +23,25 @@ The token is read from GITHUB_TOKEN or GH_TOKEN. It needs the "repo", "read:org"
 
 const log = (msg: string) => console.error(msg);
 
+/** Run by the action, or another workflow, on GitHub Actions. */
+const IN_ACTIONS = process.env.GITHUB_ACTIONS === 'true';
+// In a workflow an empty token is a missing secret: the action's token input is the secret setup
+// stores, CARDS_TOKEN, and a secret that isn't there reads as empty.
+const NO_SECRET =
+  "no token: the workflow's token is empty, so this repository is probably missing the CARDS_TOKEN secret.\n" +
+  'Add it by hand: a classic token (github.com/settings/tokens) with the repo, read:org and read:user scopes, ' +
+  'as the secret CARDS_TOKEN in Settings > Secrets and variables > Actions. Or run setup again: it links to a token with those scopes filled in, then checks and stores it:\n' +
+  `  ${SETUP_COMMAND}`;
+
+/** An error as a workflow command, so it's shown on the run's page and summary, at its line in the settings when it has one. */
+function annotation(err: unknown): string {
+  const message = err instanceof Error ? err.message : String(err);
+  const at = err instanceof ConfigError ? err.at : undefined;
+  const props = [at?.file && `file=${at.file},line=${at.line},col=${at.col}`, 'title=Cool README cards'].filter(Boolean).join(',');
+  // Workflow commands end at a line break: they're written escaped.
+  return `::error ${props}::${message.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A')}`;
+}
+
 async function main(): Promise<void> {
   const { values } = parseArgs({
     options: {
@@ -38,15 +58,12 @@ async function main(): Promise<void> {
     return;
   }
 
+  // Without --config, cool-readme.yml if there is one. Only a missing file means the defaults: a
+  // file with a mistake in it is an error, not silently ignored.
   let config = DEFAULT_CONFIG;
-  if (values.config) config = loadConfig(values.config);
-  else {
-    try {
-      config = loadConfig('cool-readme.yml');
-    } catch {
-      log('No cool-readme.yml found, using the defaults');
-    }
-  }
+  const configFile = values.config ?? (existsSync('cool-readme.yml') ? 'cool-readme.yml' : null);
+  if (configFile) config = loadConfig(configFile);
+  else log('No cool-readme.yml found, using the defaults');
 
   if (usesOldLayout(config)) {
     log('note: your settings are in the layout from before v1.5. They still work; run setup again to move them to the new one (see the README)');
@@ -62,7 +79,7 @@ async function main(): Promise<void> {
     log(`Using data from ${values['from-snapshot']} (${snapshot.generatedAt})`);
   } else {
     const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
-    if (!token) throw new ConfigError('set GITHUB_TOKEN (or GH_TOKEN) to a token with the repo, read:org and read:user scopes');
+    if (!token) throw new ConfigError(IN_ACTIONS ? NO_SECRET : 'set GITHUB_TOKEN (or GH_TOKEN) to a token with the repo, read:org and read:user scopes');
     snapshot = await collect(createClient(token, log), config, log);
     if (values.snapshot) {
       mkdirSync(dirname(values.snapshot), { recursive: true });
@@ -85,5 +102,6 @@ async function main(): Promise<void> {
 
 main().catch((err: unknown) => {
   log(`error: ${err instanceof Error ? err.message : String(err)}`);
+  if (IN_ACTIONS) console.log(annotation(err));
   process.exit(1);
 });

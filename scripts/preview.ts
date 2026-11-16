@@ -2,37 +2,47 @@
 //   npm run preview           ->  out/preview/index.html, from made-up data that's the same every run
 //   npm run preview -- --real ->  the same from .cache/snapshot.json (your own data, from npm run dev)
 // The made-up data is the tests' fixture with a year of daily contributions added, so the
-// calendar cards have something to show.
+// calendar cards have something to show: the same data the golden test renders, with five more
+// starred repos so the top repos card is full.
 import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { compute } from '../src/compute.ts';
 import { CARDS, loadConfig } from '../src/config.ts';
 import { renderAll } from '../src/render/index.ts';
 import type { Snapshot } from '../src/types.ts';
-import { fixture } from '../tests/fixtures/snapshot.ts';
+import { yearFixture } from '../tests/fixtures/snapshot.ts';
 
-/** A year of days to 2026-11-04, the fixture's date: busier on weekdays, with quiet spells, the same every run. */
-function calendar(): Snapshot['calendar'] {
-  let seed = 42;
-  const rand = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
-  const end = Date.parse('2026-11-04T00:00:00Z');
-  return Array.from({ length: 365 }, (_, i) => {
-    const time = end - (364 - i) * 864e5;
-    const weekday = (new Date(time).getUTCDay() + 6) % 7;
-    const quiet = rand() < (weekday >= 5 ? 0.35 : 0.12) || (i > 200 && i < 215); // the odd day off, and a holiday
-    const count = quiet ? 0 : Math.round(rand() ** 2 * (weekday >= 5 ? 25 : 40)) + 1;
-    return { date: new Date(time).toISOString().slice(0, 10), count };
-  });
+/** The made-up data: the golden test's, and five more of octo's repos with stars. */
+function madeUp(): Snapshot {
+  const s = yearFixture();
+  const more: [name: string, stars: number, recent: number, language: string | null, color: string | null][] = [
+    ['dotfiles', 2480, 310, 'Shell', '#89e051'],
+    ['terraform-modules', 860, 95, 'HCL', '#844FBA'],
+    ['pixel-engine', 412, 0, 'C', '#555555'],
+    ['notes', 57, 6, null, null],
+    ['kart-timer', 9, 2, 'TypeScript', '#3178c6'],
+  ];
+  for (const [name, stars, recent, language, color] of more) {
+    const key = `octo/${name}`;
+    s.repos[key] = {
+      nameWithOwner: key, owner: 'octo', ownerIsOrg: false, isPrivate: false, isFork: false, stars,
+      languages: language ? [{ name: language, color, size: 1 }] : [],
+    };
+    s.ownedRepos.push(key);
+    if (recent) s.recentStars[key] = recent;
+  }
+  return s;
 }
 
 const real = process.argv.includes('--real');
-const snapshot: Snapshot = real ? JSON.parse(readFileSync('.cache/snapshot.json', 'utf8')) : { ...fixture(), calendar: calendar() };
+const snapshot: Snapshot = real ? JSON.parse(readFileSync('.cache/snapshot.json', 'utf8')) : madeUp();
 const looks = readdirSync('preview').filter((f) => f.endsWith('.yml')).sort();
 
 rmSync('out/preview', { recursive: true, force: true });
 const sections: string[] = [];
 for (const file of looks) {
   const name = file.replace(/\.yml$/, '');
-  const config = loadConfig(`preview/${file}`);
+  // Every card, whatever the look's file says: a new card is in the preview without listing it.
+  const config = { ...loadConfig(`preview/${file}`), show: [...CARDS] };
   const files = renderAll(compute(snapshot, config), config);
   mkdirSync(`out/preview/${name}`, { recursive: true });
   for (const [path, svg] of Object.entries(files)) writeFileSync(`out/preview/${name}/${path}`, svg);
