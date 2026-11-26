@@ -8,7 +8,7 @@ import { ConfigError, background, check, emptyMappings, isMap, type Raw, type Sh
 export { ConfigError };
 
 /** How to run setup, for the errors it fixes. */
-export const SETUP_COMMAND = 'bash <(curl -fsSL https://raw.githubusercontent.com/pedrocatalao/github-cool-readme/v1/setup.sh)';
+export const SETUP_COMMAND = 'bash <(curl -fsSL https://pedrocatalao.github.io/github-cool-readme/setup.sh)';
 
 /** The cards, in their usual order: see cards/index.ts. */
 export type Card = CardDefs['name'];

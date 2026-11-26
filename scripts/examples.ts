@@ -35,6 +35,7 @@ const looks: { dir: string; look: Record<string, string>; cards: readonly Card[]
   { dir: 'dotmatrix-cards/github', look: { style: 'dotmatrix' }, cards: ['contributions', 'weekly'] },
   { dir: 'dotmatrix-cards/green', look: { style: 'dotmatrix', color: 'green' }, cards: ['streaks', 'about'] },
   { dir: 'oled-cards', look: { style: 'oled', color: 'purple', background: '0b0710' }, cards: ['summary', 'languages'], panel: true },
+  { dir: 'floating-cards', look: { style: 'floating', color: 'cyan' }, cards: ['summary', 'streaks'] },
 ];
 
 for (const { dir, look, cards, panel } of looks) {

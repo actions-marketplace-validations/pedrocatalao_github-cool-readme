@@ -1,0 +1,39 @@
+# The site on GitHub Pages: the page from site/ on main, and setup.sh from the v1 tag. It's built
+# again when either changes: a push to main that touches the site, or a release moving v1.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths: [site/**, examples/**, scripts/site.sh, .github/workflows/pages.yml]
+    tags: [v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0 # for the v1 tag
+      - run: bash scripts/site.sh _site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

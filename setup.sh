@@ -2,7 +2,7 @@
 # Wires github-cool-readme into your profile repo (<you>/<you>): token secret, workflow, settings,
 # first run, README. Run it again to change settings; it asks before changing anything.
 #
-#   bash <(curl -fsSL https://raw.githubusercontent.com/pedrocatalao/github-cool-readme/v1/setup.sh)
+#   bash <(curl -fsSL https://pedrocatalao.github.io/github-cool-readme/setup.sh)
 #
 # Options: --dry-run  show what would happen, change nothing
 # Needs: gh (logged in) and git. Works with the bash that ships with macOS.
