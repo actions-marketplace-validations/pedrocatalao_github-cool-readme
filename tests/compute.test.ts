@@ -130,6 +130,43 @@ describe('top repos', () => {
   });
 });
 
+describe('downloads', () => {
+  const names = (m: ReturnType<typeof compute>) => m.downloads.map((u) => u.name);
+
+  it("lists your public repos by downloads, forks too: a fork's releases are its own", () => {
+    const m = compute(fixture(), config());
+    // octo/secret is private: never shown, downloads and users alike.
+    expect(m.downloads).toEqual([
+      { name: 'game', downloads: 340, users: 0, language: { name: 'C', color: '#555555' } },
+      { name: 'fork', downloads: 12, users: 0, language: null },
+    ]);
+  });
+
+  it("counts an action's users with its downloads, most first, ties by name, at most count", () => {
+    const s = fixture();
+    for (const name of ['act', 'tie']) {
+      s.repos[`octo/${name}`] = { nameWithOwner: `octo/${name}`, owner: 'octo', ownerIsOrg: false, isPrivate: false, isFork: false, stars: 0, languages: [] };
+      s.ownedRepos.push(`octo/${name}`);
+    }
+    s.actionUsers['octo/act'] = 400;
+    s.downloads['octo/fork'] = 300;
+    s.actionUsers['octo/fork'] = 40;
+    s.downloads['octo/tie'] = 340; // fork 300 + 40, game and tie all 340: by name
+    expect(names(compute(s, config()))).toEqual(['act', 'fork', 'game', 'tie']);
+    expect(names(compute(s, config((c) => (c.cards.downloads.count = 2))))).toEqual(['act', 'fork']);
+  });
+
+  it('leaves out hidden ones, with a note for a name that matches nothing', () => {
+    const m = compute(fixture(), config((c) => (c.cards.downloads.hide = ['game', 'octo/nope'])));
+    expect(names(m)).toEqual(['fork']);
+    expect(m.notes).toContain('cards.downloads.hide: "octo/nope" matched no repository you contributed to');
+  });
+
+  it('never shows a private repo, even when private work counts', () => {
+    expect(names(compute(fixture(), config((c) => (c.count.private = true))))).not.toContain('secret');
+  });
+});
+
 describe('weekly rhythm', () => {
   it('sums the calendar per weekday, Monday first', () => {
     // The fixture's calendar runs Thu 2026-10-01 to Sat 10-10: 0 for the first four days, then 4, 5, ... 9.

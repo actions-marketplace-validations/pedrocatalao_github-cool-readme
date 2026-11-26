@@ -3,7 +3,7 @@
 //   npm run preview -- --real ->  the same from .cache/snapshot.json (your own data, from npm run dev)
 // The made-up data is the tests' fixture with a year of daily contributions added, so the
 // calendar cards have something to show: the same data the golden test renders, with five more
-// starred repos so the top repos card is full.
+// starred repos so the top repos card is full, and their downloads and users for the downloads card.
 import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { compute } from '../src/compute.ts';
 import { CARDS, loadConfig } from '../src/config.ts';
@@ -30,6 +30,9 @@ function madeUp(): Snapshot {
     s.ownedRepos.push(key);
     if (recent) s.recentStars[key] = recent;
   }
+  // Release downloads, and an action others use, for the downloads card.
+  Object.assign(s.downloads, { 'octo/pixel-engine': 3120, 'octo/kart-timer': 640, 'octo/dotfiles': 85 });
+  Object.assign(s.actionUsers, { 'octo/terraform-modules': 212, 'octo/dotfiles': 41 });
   return s;
 }
 

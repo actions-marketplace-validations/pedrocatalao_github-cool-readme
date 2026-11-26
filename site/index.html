@@ -57,6 +57,8 @@ nav a.link:hover { color: var(--fg); text-decoration: none; }
   border: 1px solid var(--line-2); background: rgba(240, 246, 252, .04); transition: border-color .15s, background .15s, transform .15s;
 }
 .btn:hover { text-decoration: none; border-color: rgba(240, 246, 252, .3); background: rgba(240, 246, 252, .08); }
+.btn .count { padding-left: 8px; border-left: 1px solid var(--line-2); color: var(--muted); font-variant-numeric: tabular-nums; }
+.btn .count:empty { display: none; }
 .btn.big { padding: 12px 22px; font-size: 16px; border-radius: 10px; }
 .btn.primary { border: 0; color: #05070b; font-weight: 600; background: var(--grad); box-shadow: 0 8px 30px -8px rgba(88, 166, 255, .6); }
 .btn.primary:hover { transform: translateY(-1px); background: var(--grad); }
@@ -132,7 +134,6 @@ h2 { font-size: clamp(30px, 4.4vw, 44px); letter-spacing: -.035em; line-height: 
 .item::before { content: ""; position: absolute; left: 20px; top: 24px; width: 12px; height: 12px; border-radius: 4px; background: var(--dot); box-shadow: 0 0 14px var(--dot); }
 .item b { display: block; margin-bottom: 3px; }
 .item span { color: var(--muted); font-size: 14px; }
-.item i { font-style: normal; font-size: 11px; color: var(--muted); border: 1px solid var(--line-2); border-radius: 999px; padding: 1px 8px; margin-left: 8px; vertical-align: 2px; }
 .note { text-align: center; color: var(--dim); font-size: 14px; margin-top: 26px; }
 
 /* Last call */
@@ -164,6 +165,7 @@ footer a { color: var(--muted); }
       <a class="btn" href="https://github.com/pedrocatalao/github-cool-readme">
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path fill="#e3b341" d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
         Star
+        <span class="count" id="stars"></span>
       </a>
     </nav>
   </div>
@@ -215,8 +217,8 @@ footer a { color: var(--muted); }
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" aria-selected="true" data-look="classic">Classic</button>
         <button class="tab" role="tab" aria-selected="false" data-look="dotmatrix">Dot matrix</button>
-        <button class="tab" role="tab" aria-selected="false" data-look="oled">OLED</button>
         <button class="tab" role="tab" aria-selected="false" data-look="floating">Floating</button>
+        <button class="tab" role="tab" aria-selected="false" data-look="oled">OLED</button>
       </div>
       <div class="look on" id="classic">
         <p>GitHub's own fonts, colours and icons. The default. <code>style: classic</code></p>
@@ -240,18 +242,22 @@ footer a { color: var(--muted); }
           <div class="c"><img src="examples/dotmatrix-cards/green/about-dark.svg" alt="About card, dot matrix in green"></div>
         </div>
       </div>
+      <div class="look" id="floating">
+        <p>The dot matrix's round LEDs, without the grid. <code>style: floating</code></p>
+        <div class="cards">
+          <div class="c flush"><img src="examples/floating-cards/summary.svg" alt="Summary card, floating in cyan"></div>
+          <div class="c flush"><img src="examples/floating-cards/streaks.svg" alt="Streaks card, floating in cyan"></div>
+          <div class="c flush"><img src="examples/floating-cards/downloads.svg" alt="Most downloaded card, floating in cyan"></div>
+          <div class="c flush"><img src="examples/floating-cards/weekly.svg" alt="Weekly rhythm card, floating in cyan"></div>
+        </div>
+      </div>
       <div class="look" id="oled">
         <p>Square pixels, in any colour. <code>style: oled</code></p>
         <div class="cards">
           <div class="c flush"><img src="examples/oled-cards/summary.svg" alt="Summary card, OLED in purple"></div>
           <div class="c flush"><img src="examples/oled-cards/languages.svg" alt="Languages card, OLED in purple"></div>
-        </div>
-      </div>
-      <div class="look" id="floating">
-        <p>The dot matrix's round LEDs, without the grid. <code>style: floating</code></p>
-        <div class="cards">
-          <div class="c"><img src="examples/floating-cards/summary-dark.svg" alt="Summary card, floating in cyan"></div>
-          <div class="c"><img src="examples/floating-cards/streaks-dark.svg" alt="Streaks card, floating in cyan"></div>
+          <div class="c flush"><img src="examples/oled-cards/repos.svg" alt="Top repos card, OLED in purple"></div>
+          <div class="c flush"><img src="examples/oled-cards/contributions.svg" alt="Notable contributions card, OLED in purple"></div>
         </div>
       </div>
     </div>
@@ -260,16 +266,17 @@ footer a { color: var(--muted); }
   <section id="cards">
     <div class="wrap">
       <span class="eyebrow grad">Cards</span>
-      <h2>Your year, on seven cards.</h2>
-      <p class="sub">Private and organization work is counted, and can be turned off. Only totals appear; private repo names never do.</p>
+      <h2>Your year, on eight cards.</h2>
+      <p class="sub">The first four are on from the start; turn on the others in setup. Private and organization work is counted, and can be turned off. Only totals appear; private repo names never do.</p>
       <div class="list">
         <div class="item" style="--dot:#58a6ff"><b>Summary</b><span>Commits, pull requests created and reviewed, issues and stars, for the last 12 months and all time.</span></div>
         <div class="item" style="--dot:#bc8cff"><b>Languages</b><span>Each repo's language mix, weighted by your commits there.</span></div>
         <div class="item" style="--dot:#3fb950"><b>Weekly rhythm</b><span>Your contributions per weekday, with your busiest and quietest day.</span></div>
         <div class="item" style="--dot:#e3b341"><b>Notable contributions</b><span>Your pull requests to other people's public projects, by stars.</span></div>
-        <div class="item" style="--dot:#39c5cf"><b>Streaks <i>optional</i></b><span>Current and longest streak, active days, best day and month.</span></div>
-        <div class="item" style="--dot:#f85149"><b>About <i>optional</i></b><span>A headline, a few lines and facts of your own.</span></div>
-        <div class="item" style="--dot:#d2a8ff"><b>Top repos <i>optional</i></b><span>Your public repos with the most stars, and the stars each got this year.</span></div>
+        <div class="item" style="--dot:#39c5cf"><b>Streaks</b><span>Current and longest streak, active days, best day and month.</span></div>
+        <div class="item" style="--dot:#f85149"><b>About</b><span>A headline, a few lines and facts of your own.</span></div>
+        <div class="item" style="--dot:#d2a8ff"><b>Top repos</b><span>Your public repos with the most stars, and the stars each got this year.</span></div>
+        <div class="item" style="--dot:#ffa657"><b>Most downloaded</b><span>Your repos by their releases' downloads, and your actions by how many repos use them.</span></div>
       </div>
       <p class="note">Every setting is in <a href="https://github.com/pedrocatalao/github-cool-readme#settings">the README</a>.</p>
     </div>
@@ -301,6 +308,13 @@ document.getElementById('copy').addEventListener('click', async (e) => {
   catch { getSelection().selectAllChildren(document.getElementById('command')); e.target.textContent = 'Press ⌘C'; }
   setTimeout(() => { e.target.textContent = 'Copy'; }, 1600);
 });
+fetch('https://api.github.com/repos/pedrocatalao/github-cool-readme')
+  .then((r) => (r.ok ? r.json() : null))
+  .then((repo) => {
+    const n = repo?.stargazers_count;
+    if (typeof n === 'number') document.getElementById('stars').textContent = n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k` : n;
+  })
+  .catch(() => {});
 for (const tab of document.querySelectorAll('.tab')) {
   tab.addEventListener('click', () => {
     for (const t of document.querySelectorAll('.tab')) t.setAttribute('aria-selected', t === tab);

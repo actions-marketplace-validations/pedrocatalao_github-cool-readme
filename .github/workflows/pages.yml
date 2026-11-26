@@ -1,12 +1,13 @@
 # The site on GitHub Pages: the page from site/ on main, and setup.sh from the v1 tag. It's built
-# again when either changes: a push to main that touches the site, or a release moving v1.
+# again when either changes: a push to main that touches the site, or a release moving v1, which
+# starts it on main (scripts/release.sh). Always from main: the github-pages environment only lets
+# main deploy, and a run started by the tag would be refused.
 name: Pages
 
 on:
   push:
     branches: [main]
     paths: [site/**, examples/**, scripts/site.sh, .github/workflows/pages.yml]
-    tags: [v1]
   workflow_dispatch:
 
 permissions:
@@ -19,12 +20,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  # Built and deployed in two jobs, as GitHub's own Pages workflows are: deploying in the job that
+  # uploaded can look for the artifact before it's listed ("No artifacts named github-pages"), and
+  # re-running that job then finds two ("Multiple artifacts"). A failed deploy can be re-run alone.
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,5 +36,14 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4

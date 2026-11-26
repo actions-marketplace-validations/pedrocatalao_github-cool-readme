@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Releases a version: the GitHub release vX.Y.Z of what's on main, then v1 moved to it. In that
-# order: setup downloads its steps from v1 and names the newest v1 release, and the action runs v1.
+# Releases a version: the GitHub release vX.Y.Z of what's on main, then v1 moved to it, then the
+# project page rebuilt, for setup.sh. In that order: setup downloads its steps from v1 and names the
+# newest v1 release, and the action runs v1.
 #
 #   npm run release -- 1.6.4 notes.md "what's in it, in a line"
 #   npm run release -- --dry-run 1.6.4 notes.md "..."     # checks, and says what it would do
@@ -78,6 +79,7 @@ echo "  tag      $tag: $summary"
 echo "  release  $tag, notes from $notes:"
 sed 's/^/           | /' "$notes"
 echo "  move     $MAJOR to $tag (was ${last:-nothing})"
+echo "  rebuild  the project page, from main, for $tag's setup.sh"
 echo
 if $DRY_RUN; then echo "Dry run: nothing changed."; exit 0; fi
 printf 'Release %s? [y/N] ' "$tag"
@@ -93,6 +95,9 @@ ok "release $tag published"
 git tag -fa "$MAJOR" -m "$MAJOR: latest ${MAJOR#v}.x ($tag)" "$sha" >/dev/null
 git push --quiet --force origin "$MAJOR"
 ok "$MAJOR moved to $tag"
+# The project page serves setup.sh from v1: built again, from main, the only branch that may deploy it.
+gh workflow run pages.yml --repo "$REPO" --ref main
+ok "project page rebuilding with $tag's setup.sh"
 
 # ------------------------------------------------------------------ after
 

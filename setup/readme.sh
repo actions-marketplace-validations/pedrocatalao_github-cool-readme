@@ -31,6 +31,7 @@ card_picture() { # card_picture card
     streaks) picture streaks "$WIDTH" "Streaks" ;;
     about) picture about "$WIDTH" "About" ;;
     repos) picture repos "$WIDTH" "Top repos" ;;
+    downloads) picture downloads "$WIDTH" "Most downloaded" ;;
   esac
 }
 block="$(mktemp)"

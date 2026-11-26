@@ -13,6 +13,9 @@ const LANGUAGES = `languages(first: 20, orderBy: { field: SIZE, direction: DESC 
 
 export class ScopeError extends Error {}
 
+/** The most actions whose users are counted: code search allows 10 searches a minute. */
+const MAX_ACTIONS = 20;
+
 interface RawRepo {
   nameWithOwner: string;
   isPrivate: boolean;
@@ -150,15 +153,26 @@ export async function collect(client: Client, config: Config, log: (msg: string)
   const orgs = user.organizations.nodes.map((o) => o.login.toLowerCase());
   log(`User ${login}, member of ${orgs.length} organization(s), joined ${user.createdAt.slice(0, 10)}`);
 
-  // Owned repos, for stars.
+  // Owned repos, for stars, and whether each has releases or is an action, for the downloads card.
   const ownedRepos: string[] = [];
+  const withReleases: string[] = [];
+  const actions: string[] = [];
+  type OwnedRepo = RawRepo & { releases: { totalCount: number }; yml: { id: string } | null; yaml: { id: string } | null };
   for (let after: string | null = null; ; ) {
-    const res: { user: { repositories: { pageInfo: PageInfo; nodes: RawRepo[] } } } = await client.query(
+    const res: { user: { repositories: { pageInfo: PageInfo; nodes: OwnedRepo[] } } } = await client.query(
       `query($login: String!, $after: String) { user(login: $login) {
-        repositories(first: 100, after: $after, ownerAffiliations: OWNER) { pageInfo { hasNextPage endCursor } nodes { ${REPO_FIELDS} } } } }`,
+        repositories(first: 100, after: $after, ownerAffiliations: OWNER) { pageInfo { hasNextPage endCursor } nodes { ${REPO_FIELDS}
+          releases { totalCount } yml: object(expression: "HEAD:action.yml") { id } yaml: object(expression: "HEAD:action.yaml") { id } } } } }`,
       { login, after },
     );
-    ownedRepos.push(...res.user.repositories.nodes.map(remember));
+    for (const raw of res.user.repositories.nodes) {
+      const key = remember(raw);
+      ownedRepos.push(key);
+      // Public ones only: the card would put a private repo's name on your profile.
+      if (raw.isPrivate) continue;
+      if (raw.releases.totalCount) withReleases.push(key);
+      if (raw.yml || raw.yaml) actions.push(key);
+    }
     if (!res.user.repositories.pageInfo.hasNextPage) break;
     after = res.user.repositories.pageInfo.endCursor;
   }
@@ -274,6 +288,67 @@ export async function collect(client: Client, config: Config, log: (msg: string)
     return [];
   });
 
+  // Release downloads: every asset's count, added up. A count belongs to its asset, so a deleted
+  // release takes its downloads with it.
+  const downloads: Record<string, number> = {};
+  type Assets = { nodes: { downloadCount: number }[]; pageInfo: PageInfo };
+  type Releases = { nodes: { id: string; releaseAssets: Assets }[]; pageInfo: PageInfo };
+  const assets = (after: string | null) =>
+    `releaseAssets(first: 100, after: ${after ? JSON.stringify(after) : 'null'}) { nodes { downloadCount } pageInfo { hasNextPage endCursor } }`;
+  const releases = (after: string | null) =>
+    `releases(first: 50, after: ${after ? JSON.stringify(after) : 'null'}) { nodes { id ${assets(null)} } pageInfo { hasNextPage endCursor } }`;
+  const sum = (a: Assets) => a.nodes.reduce((n, x) => n + x.downloadCount, 0);
+  await inBatches(withReleases, 10, async (batch) => {
+    const data = await client.query<Record<string, { releases: Releases } | null>>(
+      `query {\n${batch.map((k, i) => `r${i}: ${repoRef(k)} { ${releases(null)} }`).join('\n')}\n}`,
+    );
+    for (const [i, key] of batch.entries()) {
+      let page = data[`r${i}`]?.releases;
+      let count = 0;
+      while (page) {
+        for (const release of page.nodes) {
+          count += sum(release.releaseAssets);
+          // More than 100 assets in a release: the rest, a page at a time.
+          for (let more = release.releaseAssets; more.pageInfo.hasNextPage; ) {
+            const next: { node: { releaseAssets: Assets } | null } = await client.query(
+              `query($id: ID!) { node(id: $id) { ... on Release { ${assets(more.pageInfo.endCursor)} } } }`,
+              { id: release.id },
+            );
+            if (!next.node) break;
+            more = next.node.releaseAssets;
+            count += sum(more);
+          }
+        }
+        if (!page.pageInfo.hasNextPage) break;
+        const next: Record<string, { releases: Releases } | null> = await client.query(
+          `query { r: ${repoRef(key)} { ${releases(page.pageInfo.endCursor)} } }`,
+        );
+        page = next.r?.releases;
+      }
+      if (count) downloads[key] = count;
+    }
+    return [];
+  });
+
+  // Your actions' users: other people's repos whose workflows name them, from code search. It's
+  // public repos only, and allows 10 searches a minute, so the most starred actions go first.
+  const actionUsers: Record<string, number> = {};
+  const searched = [...actions].sort((a, b) => repos[b].stars - repos[a].stars).slice(0, MAX_ACTIONS);
+  if (actions.length > searched.length) log(`note: ${actions.length} actions; counting the users of the ${searched.length} most starred`);
+  for (const key of searched) {
+    const q = `"${repos[key].nameWithOwner}" path:.github/workflows -user:${login}`;
+    try {
+      const res = await client.rest<{ total_count: number }>(`/search/code?per_page=1&q=${encodeURIComponent(q)}`);
+      if (res.total_count) actionUsers[key] = res.total_count;
+    } catch (err) {
+      // The card goes without it: the rest of the run is fine.
+      log(`warning: could not count the users of ${repos[key].nameWithOwner}: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+  if (withReleases.length || actions.length) {
+    log(`Downloads: ${Object.keys(downloads).length} repo(s) with release downloads, ${Object.keys(actionUsers).length} action(s) in use`);
+  }
+
   // Avatars of the owners most likely to be on the contributions card: the most starred, plus pins.
   const outside = [...new Set(pullRequests.map((p) => p.repo))].filter((k) => {
     const r = repos[k];
@@ -294,13 +369,15 @@ export async function collect(client: Client, config: Config, log: (msg: string)
   for (const w of client.warnings) log(`warning: ${w}`);
 
   return {
-    version: 5,
+    version: 6,
     generatedAt: now.toISOString(),
     user: { login, name: user.name, createdAt: user.createdAt },
     orgs,
     repos,
     ownedRepos,
     recentStars,
+    downloads,
+    actionUsers,
     last12Months,
     allTime,
     calendar,

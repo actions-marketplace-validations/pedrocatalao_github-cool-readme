@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="450" height="219" viewBox="0 0 400 195" fill="none" role="img" aria-labelledby="title desc">
+<title id="title">Most downloaded</title>
+<desc id="desc">pinball-fantasies-encore: 709 downloads. skyroads-sdl: 449 downloads. github-cool-readme: used in 67 repos. tyrian-sdl: 52 downloads. keyzerchief: 3 downloads</desc>
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .label { font-size: 14px; }
+  .value { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .small { font-size: 12px; }
+  .col { font-size: 11px; fill: #818b98; letter-spacing: 0.04em; }
+  .secondary { fill: #59636e; }
+  .muted { fill: #818b98; }
+  .icon { fill: #59636e; }
+  .fade { animation: fade 0.45s ease-out both; }
+  .grow { transform-box: fill-box; transform-origin: left center; animation: grow 0.9s cubic-bezier(.2,.7,.2,1) 0.15s both; }
+  .ring { animation: ring 1.2s cubic-bezier(.2,.7,.2,1) 0.2s both; }
+  .pop { transform-box: fill-box; transform-origin: center; animation: pop 0.4s ease-out 0.5s both; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } }
+  @keyframes grow { from { transform: scaleX(0); } }
+  @keyframes pop { from { opacity: 0; transform: scale(0.6); } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+<rect x="0.5" y="0.5" width="399" height="194" rx="6" fill="none" stroke="none"/>
+<text x="20" y="28" class="col">MOST DOWNLOADED</text>
+<g transform="translate(20 44)"><g class="fade" style="animation-delay: 200ms"><circle cx="5" cy="8" r="5" fill="#f34b7d"/><text x="16" y="13" class="label" style="font-weight: 600;">pinball-fantasies…</text><g class="icon" transform="translate(16 19) scale(0.875)"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"></path><path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.969a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.06l1.97 1.969Z"></path></g><text x="34" y="30" class="small secondary">709 downloads</text></g></g>
+<g transform="translate(200 44)"><g class="fade" style="animation-delay: 270ms"><circle cx="5" cy="8" r="5" fill="#555555"/><text x="16" y="13" class="label" style="font-weight: 600;">skyroads-sdl</text><g class="icon" transform="translate(16 19) scale(0.875)"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"></path><path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.969a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.06l1.97 1.969Z"></path></g><text x="34" y="30" class="small secondary">449 downloads</text></g></g>
+<g transform="translate(20 90)"><g class="fade" style="animation-delay: 340ms"><circle cx="5" cy="8" r="5" fill="#3178c6"/><text x="16" y="13" class="label" style="font-weight: 600;">github-cool-readme</text><g class="icon" transform="translate(16 19) scale(0.875)"><path d="M0 1.75C0 .784.784 0 1.75 0h3.5C6.216 0 7 .784 7 1.75v3.5A1.75 1.75 0 0 1 5.25 7H4v4a1 1 0 0 0 1 1h4v-1.25C9 9.784 9.784 9 10.75 9h3.5c.966 0 1.75.784 1.75 1.75v3.5A1.75 1.75 0 0 1 14.25 16h-3.5A1.75 1.75 0 0 1 9 14.25v-.75H5A2.5 2.5 0 0 1 2.5 11V7h-.75A1.75 1.75 0 0 1 0 5.25Zm1.75-.25a.25.25 0 0 0-.25.25v3.5c0 .138.112.25.25.25h3.5a.25.25 0 0 0 .25-.25v-3.5a.25.25 0 0 0-.25-.25Zm9 9a.25.25 0 0 0-.25.25v3.5c0 .138.112.25.25.25h3.5a.25.25 0 0 0 .25-.25v-3.5a.25.25 0 0 0-.25-.25Z"></path></g><text x="34" y="30" class="small secondary">used in 67 repos</text></g></g>
+<g transform="translate(200 90)"><g class="fade" style="animation-delay: 410ms"><circle cx="5" cy="8" r="5" fill="#555555"/><text x="16" y="13" class="label" style="font-weight: 600;">tyrian-sdl</text><g class="icon" transform="translate(16 19) scale(0.875)"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"></path><path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.969a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.06l1.97 1.969Z"></path></g><text x="34" y="30" class="small secondary">52 downloads</text></g></g>
+<g transform="translate(20 136)"><g class="fade" style="animation-delay: 480ms"><circle cx="5" cy="8" r="5" fill="#3572A5"/><text x="16" y="13" class="label" style="font-weight: 600;">keyzerchief</text><g class="icon" transform="translate(16 19) scale(0.875)"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"></path><path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.969a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.06l1.97 1.969Z"></path></g><text x="34" y="30" class="small secondary">3 downloads</text></g></g>
+</svg>

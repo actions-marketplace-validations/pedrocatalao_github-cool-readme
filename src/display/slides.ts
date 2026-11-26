@@ -45,9 +45,18 @@ export interface Slideshow {
  * Slides take turns in `region`, entering with `effects` in turn. `id` keeps the classes unique
  * within a card. A single slide shows still, without effects.
  */
-export function slideshow(id: string, slides: Item[][], region: Region, style: Style, effects: Effect[] = EFFECTS): Slideshow {
+export function slideshow(
+  id: string,
+  slides: Item[][],
+  region: Region,
+  style: Style,
+  effects: Effect[] = EFFECTS,
+  /** Seconds before the first slide enters: an entrance of the card's own plays first. */
+  delay = 0,
+): Slideshow {
   const { look } = style;
   const total = slides.length * HOLD;
+  const run = delay ? `${total}s ${delay}s infinite` : `${total}s infinite`;
   const P = id; // class prefix
   let css = '';
   let defs = '';
@@ -84,7 +93,7 @@ export function slideshow(id: string, slides: Item[][], region: Region, style: S
     else if (next) show(end - 0.001), hide(end);
     else show(total - 0.001), hide(total);
     if (next) hide(total); // pin the end, or CSS animates towards the element's own (visible) state
-    css += `\n  .${P}s${i} { animation: ${P}s${i} ${total}s infinite; }` + keyframes(`${P}s${i}`, total, frames);
+    css += `\n  .${P}s${i} { animation: ${P}s${i} ${run}; }` + keyframes(`${P}s${i}`, total, frames);
 
     // Shine: shining text drawn again in a brighter tint, seen through a band that sweeps across.
     const shining = items.filter((it) => 'text' in it && it.shine);
@@ -101,7 +110,7 @@ export function slideshow(id: string, slides: Item[][], region: Region, style: S
       const to = `transform: translateX(${toX}px) skewX(-25deg);`;
       const steps = Math.round((toX - fromX) / px(3)); // a step every three dots
       const takes = (0.6 * (toX - fromX)) / (px(region.cols) + 30); // at the speed it always had
-      css += `\n  .${P}sh${i} { animation: ${P}sh${i} ${total}s infinite; }` + keyframes(`${P}sh${i}`, total, [
+      css += `\n  .${P}sh${i} { animation: ${P}sh${i} ${run}; }` + keyframes(`${P}sh${i}`, total, [
         { t: 0, css: from },
         { t: sweep, css: from, ease: `steps(${steps})` },
         { t: sweep + takes, css: to },
@@ -120,7 +129,7 @@ export function slideshow(id: string, slides: Item[][], region: Region, style: S
         items.filter((it) => !('text' in it)).map((it) => draw(it)).join('') +
         chars
           .map((ch, j) => {
-            css += `\n  .${P}t${i}c${j} { animation: ${P}t${i}c${j} ${total}s infinite; }` + keyframes(`${P}t${i}c${j}`, total, [
+            css += `\n  .${P}t${i}c${j} { animation: ${P}t${i}c${j} ${run}; }` + keyframes(`${P}t${i}c${j}`, total, [
               { t: 0, css: 'opacity: 0;' },
               { t: start + j * step, css: 'opacity: 0;', ease: 'steps(1, end)' },
               { t: start + (j + 1) * step, css: 'opacity: 1;' },
@@ -143,7 +152,7 @@ export function slideshow(id: string, slides: Item[][], region: Region, style: S
       defs += `<mask id="${P}sp${i}" ${all}>` +
         groups.map((_, k) => `<rect class="${P}sp${i}k${k}" x="0" y="0" width="${width}" height="${height}" fill="url(#${P}sp${i}p${k})"/>`).join('') +
         `<rect class="${P}sp${i}all" x="0" y="0" width="${width}" height="${height}" fill="#fff"/></mask>`;
-      css += `\n  .${P}sp${i}all { animation: ${P}sp${i}all ${total}s infinite; }` + keyframes(`${P}sp${i}all`, total, [
+      css += `\n  .${P}sp${i}all { animation: ${P}sp${i}all ${run}; }` + keyframes(`${P}sp${i}all`, total, [
         { t: 0, css: 'opacity: 0;' },
         { t: start + ENTER, css: 'opacity: 0;', ease: 'steps(1, end)' },
         { t: start + ENTER + 0.001, css: 'opacity: 1;' },
@@ -151,7 +160,7 @@ export function slideshow(id: string, slides: Item[][], region: Region, style: S
         { t: total, css: 'opacity: 0;' },
       ]);
       groups.forEach((_, k) => {
-        css += `\n  .${P}sp${i}k${k} { animation: ${P}sp${i}k${k} ${total}s infinite; }` + keyframes(`${P}sp${i}k${k}`, total, [
+        css += `\n  .${P}sp${i}k${k} { animation: ${P}sp${i}k${k} ${run}; }` + keyframes(`${P}sp${i}k${k}`, total, [
           { t: 0, css: 'opacity: 0;' },
           { t: start + (k * ENTER) / 6, css: 'opacity: 0;', ease: 'steps(1, end)' },
           { t: start + ((k + 1) * ENTER) / 6, css: 'opacity: 1;' },
@@ -165,7 +174,7 @@ export function slideshow(id: string, slides: Item[][], region: Region, style: S
     if (effect === 'wipe') {
       // Wipe in: revealed from the left behind a lit bar.
       defs += `<mask id="${P}wi${i}" ${all}><rect class="${P}wi${i}" x="${px(region.col)}" y="0" width="${px(region.cols)}" height="${height}" fill="#fff"/></mask>`;
-      css += `\n  .${P}wi${i} { transform-box: fill-box; transform-origin: left; animation: ${P}wi${i} ${total}s infinite; }` + keyframes(`${P}wi${i}`, total, [
+      css += `\n  .${P}wi${i} { transform-box: fill-box; transform-origin: left; animation: ${P}wi${i} ${run}; }` + keyframes(`${P}wi${i}`, total, [
         { t: 0, css: 'transform: scaleX(0);' },
         { t: start, css: 'transform: scaleX(0);', ease: `steps(${region.cols})` },
         { t: start + ENTER, css: 'transform: scaleX(1);' },
@@ -177,7 +186,7 @@ export function slideshow(id: string, slides: Item[][], region: Region, style: S
       for (let r = region.row + 1; r < region.row + region.rows - 1; r++) bar.push([region.col, r], [region.col + 1, r]);
       overlays += path(style, bar, look.lit, `class="${P}wb${i}" opacity="0"`);
       const travel = px(region.cols - 2);
-      css += `\n  .${P}wb${i} { animation: ${P}wb${i} ${total}s infinite; }` + keyframes(`${P}wb${i}`, total, [
+      css += `\n  .${P}wb${i} { animation: ${P}wb${i} ${run}; }` + keyframes(`${P}wb${i}`, total, [
         { t: 0, css: 'opacity: 0; transform: translateX(0);' },
         { t: start - 0.001, css: 'opacity: 0; transform: translateX(0);' },
         { t: start, css: 'opacity: 1; transform: translateX(0);', ease: `steps(${region.cols - 2})` },
@@ -189,7 +198,7 @@ export function slideshow(id: string, slides: Item[][], region: Region, style: S
     if (next === 'wipe') {
       // Wiped out from the left, in step with the next slide coming in.
       defs += `<mask id="${P}wo${i}" ${all}><rect class="${P}wo${i}" x="${px(region.col)}" y="0" width="${px(region.cols)}" height="${height}" fill="#fff"/></mask>`;
-      css += `\n  .${P}wo${i} { transform-box: fill-box; transform-origin: right; animation: ${P}wo${i} ${total}s infinite; }` + keyframes(`${P}wo${i}`, total, [
+      css += `\n  .${P}wo${i} { transform-box: fill-box; transform-origin: right; animation: ${P}wo${i} ${run}; }` + keyframes(`${P}wo${i}`, total, [
         { t: 0, css: 'transform: scaleX(1);' },
         { t: end, css: 'transform: scaleX(1);', ease: `steps(${region.cols})` },
         { t: end + ENTER, css: 'transform: scaleX(0);' },

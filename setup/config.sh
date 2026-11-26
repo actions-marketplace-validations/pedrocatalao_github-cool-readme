@@ -11,7 +11,7 @@ SECRET="CARDS_TOKEN"
 START="<!-- cool-readme:start -->"
 END="<!-- cool-readme:end -->"
 
-CARD_NAMES="summary languages contributions weekly streaks about repos"
+CARD_NAMES="summary languages contributions weekly streaks about repos downloads"
 DEFAULT_CARDS="summary languages contributions weekly" # on unless cool-readme.yml says otherwise
 LIST=show # the key of the list of cards: cards before v1.5, in a file setup couldn't move
 

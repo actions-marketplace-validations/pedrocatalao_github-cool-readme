@@ -48,7 +48,7 @@ export interface PullRequest {
 }
 
 export interface Snapshot {
-  version: 5;
+  version: 6;
   generatedAt: string;
   user: { login: string; name: string | null; createdAt: string };
   /** Organizations the user belongs to (lowercase logins). */
@@ -59,6 +59,10 @@ export interface Snapshot {
   ownedRepos: string[];
   /** Stars your repos received in the last 12 months (and still have). */
   recentStars: Record<string, number>;
+  /** Your public repos' release downloads: every asset's count, added up. Only repos with any. */
+  downloads: Record<string, number>;
+  /** Your public actions: how many other people's repos use each in a workflow (code search). Only those with any. */
+  actionUsers: Record<string, number>;
   last12Months: ContributionWindow;
   /** Calendar-year windows from account creation until now. */
   allTime: ContributionWindow[];

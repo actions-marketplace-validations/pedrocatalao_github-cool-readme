@@ -1,4 +1,5 @@
-const ENDPOINT = 'https://api.github.com/graphql';
+const REST = 'https://api.github.com';
+const ENDPOINT = `${REST}/graphql`;
 const USER_AGENT = 'github-cool-readme';
 
 export class GitHubError extends Error {}
@@ -11,6 +12,8 @@ interface GraphQLError {
 
 export interface Client {
   query<T>(query: string, variables?: Record<string, unknown>): Promise<T>;
+  /** A GET from the REST API, e.g. "/search/code?q=...". */
+  rest<T>(path: string): Promise<T>;
   /** Messages for parts GitHub refused to return (e.g. SAML-protected organizations). */
   warnings: string[];
   /** The token's scopes, known after the first query; null for tokens without scopes (fine-grained, apps). */
@@ -62,19 +65,20 @@ export function createClient(token: string, log: (msg: string) => void = () => {
     await wait(ms);
   };
 
-  async function query<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
+  /** One request to the API, tried again while GitHub's errors and rate limits are worth waiting for. */
+  async function send(url: string, body?: string): Promise<{ res: Response; json: unknown }> {
     for (let attempt = 1; ; attempt++) {
       const last = attempt >= ATTEMPTS;
       let res: Response;
       try {
-        res = await fetch(ENDPOINT, {
-          method: 'POST',
+        res = await fetch(url, {
+          method: body === undefined ? 'GET' : 'POST',
           headers: {
             authorization: `bearer ${token}`,
-            'content-type': 'application/json',
+            ...(body === undefined ? { accept: 'application/vnd.github+json' } : { 'content-type': 'application/json' }),
             'user-agent': USER_AGENT,
           },
-          body: JSON.stringify({ query, variables }),
+          body,
           signal: AbortSignal.timeout(timeoutMs),
         });
       } catch (err) {
@@ -101,11 +105,17 @@ export function createClient(token: string, log: (msg: string) => void = () => {
         }
         throw new GitHubError(`GitHub answered ${res.status}: ${text.slice(0, 300)}`);
       }
+      return { res, json: await res.json() };
+    }
+  }
 
-      const body = (await res.json()) as { data?: T; errors?: GraphQLError[] };
+  async function query<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
+    for (let attempt = 1; ; attempt++) {
+      const { res, json } = await send(ENDPOINT, JSON.stringify({ query, variables }));
+      const body = json as { data?: T; errors?: GraphQLError[] };
       if (body.errors?.length) {
         // GraphQL reports its own rate limit as an error in a 200 answer.
-        if (body.errors.some((e) => e.type === 'RATE_LIMITED') && !last) {
+        if (body.errors.some((e) => e.type === 'RATE_LIMITED') && attempt < ATTEMPTS) {
           await pause(retryWait(429, res.headers, '', attempt)!.ms, 'hit a rate limit');
           continue;
         }
@@ -123,7 +133,12 @@ export function createClient(token: string, log: (msg: string) => void = () => {
     }
   }
 
-  return { query, warnings, scopes: () => scopes };
+  /** A GET from the REST API, for what GraphQL doesn't have (code search). */
+  async function rest<T>(path: string): Promise<T> {
+    return (await send(`${REST}${path}`)).json as T;
+  }
+
+  return { query, rest, warnings, scopes: () => scopes };
 }
 
 /** An image as a data: URI, or null if it can't be had (the card then goes without it). */

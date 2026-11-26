@@ -5,11 +5,13 @@ import { CARDS, DEFAULT_CARDS, DEFAULT_CONFIG, STYLES, type Config } from '../sr
 import { describe as describeItem, pageOffsets, renderContributions } from '../src/cards/contributions/classic.ts';
 import { renderAll } from '../src/render/index.ts';
 import { THEMES } from '../src/palette.ts';
-import { CARD_HEIGHT, PAD, truncate } from '../src/render/classic.ts';
+import { CARD_HEIGHT, PAD, SMALL, textWidth, truncate } from '../src/render/classic.ts';
 import { formatCompact } from '../src/text.ts';
 import { renderLanguages } from '../src/cards/languages/classic.ts';
 import { MAX_LANGUAGES } from '../src/cards/languages/index.ts';
 import { renderRepos } from '../src/cards/repos/classic.ts';
+import { renderDownloads } from '../src/cards/downloads/classic.ts';
+import { MAX_DOWNLOADS } from '../src/cards/downloads/index.ts';
 import { MAX_REPOS } from '../src/cards/repos/index.ts';
 import { fixture } from './fixtures/snapshot.ts';
 
@@ -84,6 +86,19 @@ describe('cards', () => {
     const rows = [...svg.matchAll(/<g transform="translate\(\d+(?:\.\d+)? (\d+(?:\.\d+)?)\)"><g class="fade"/g)].map((m) => Number(m[1]));
     expect(rows).toHaveLength(MAX_REPOS);
     expect(Math.max(...rows) + 34).toBeLessThanOrEqual(CARD_HEIGHT - PAD);
+  });
+
+  it('fits the most downloaded repos there can be, and both numbers in a column', () => {
+    const items = Array.from({ length: MAX_DOWNLOADS }, (_, i) => ({ name: `repo-${i}`, downloads: 98_765 - i, users: i % 2 ? 1234 : 0, language: null }));
+    const svg = renderDownloads(items, THEMES.light, DEFAULT_CONFIG);
+    const rows = [...svg.matchAll(/<g transform="translate\(\d+(?:\.\d+)? (\d+(?:\.\d+)?)\)"><g class="fade"/g)].map((m) => Number(m[1]));
+    expect(rows).toHaveLength(MAX_DOWNLOADS);
+    expect(Math.max(...rows) + 34).toBeLessThanOrEqual(CARD_HEIGHT - PAD);
+    // Downloads and users: "99k" by one icon, "1.2k repos" by the other, ending inside the column.
+    expect(svg).toContain('>99k</text>');
+    expect(svg).toContain('>1.2k repos</text>');
+    const x = Number(svg.match(/<text x="([\d.]+)" y="30" class="small secondary">1\.2k repos/)![1]);
+    expect(x + textWidth('1.2k repos', SMALL)).toBeLessThanOrEqual((400 - 2 * PAD) / 2 - 8);
   });
 
   it('draws every display card in dots, with no text set in a font', () => {

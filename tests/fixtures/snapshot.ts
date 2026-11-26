@@ -44,7 +44,7 @@ export function fixture(): Snapshot {
   };
   const dec2025 = { 'octo/game': { commits: 10, pullRequests: 1 } };
   return {
-    version: 5,
+    version: 6,
     generatedAt: '2026-11-04T12:00:00Z',
     user: { login: 'octo', name: 'Octo', createdAt: '2015-03-01T00:00:00Z' },
     orgs: ['acme'],
@@ -79,6 +79,8 @@ export function fixture(): Snapshot {
     },
     ownedRepos: ['octo/game', 'octo/secret', 'octo/fork'],
     recentStars: { 'octo/game': 20, 'octo/secret': 3, 'octo/fork': 7 },
+    downloads: { 'octo/game': 340, 'octo/secret': 80, 'octo/fork': 12 },
+    actionUsers: { 'octo/secret': 9 },
     last12Months: window('2025-11-05T00:00:00Z', '2026-11-04T12:00:00Z', { ...dec2025, ...y2026 }),
     allTime: [
       year(2018, { 'old/archive': { pullRequests: 2 } }),

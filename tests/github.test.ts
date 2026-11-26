@@ -111,6 +111,26 @@ describe('GitHub client', () => {
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 
+  it('gets from the REST API with the same retries', async () => {
+    const reset = Math.floor(Date.now() / 1000) + 40;
+    const { client, fetch, waits } = setup([
+      // Code search's own limit: 10 a minute.
+      status(403, 'API rate limit exceeded', { 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': String(reset) }),
+      new Response(JSON.stringify({ total_count: 67 }), { status: 200 }),
+    ]);
+    expect(await client.rest('/search/code?q=x')).toEqual({ total_count: 67 });
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(fetch.mock.calls[1]).toMatchObject(['https://api.github.com/search/code?q=x', { method: 'GET' }]);
+    expect(waits[0]).toBeGreaterThan(35_000);
+  });
+
+  it('gives up on GraphQL rate limit errors after four tries', async () => {
+    const limited = () => ok(null, { errors: [{ type: 'RATE_LIMITED', message: 'API rate limit exceeded' }] });
+    const { client, fetch } = setup([limited(), limited(), limited(), limited()]);
+    await expect(client.query('q')).rejects.toThrow('API rate limit exceeded');
+    expect(fetch).toHaveBeenCalledTimes(4);
+  });
+
   it('keeps partial data, with the refused parts as warnings', async () => {
     const { client } = setup([ok({ user: null }, { errors: [{ type: 'FORBIDDEN', message: 'SAML enforcement', path: ['org'] }] })]);
     expect(await client.query('q')).toEqual({ user: null });

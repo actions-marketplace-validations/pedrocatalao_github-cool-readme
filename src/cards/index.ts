@@ -4,13 +4,14 @@
 // list of cards and its settings.
 import { about } from './about/index.ts';
 import { contributions } from './contributions/index.ts';
+import { downloads } from './downloads/index.ts';
 import { languages } from './languages/index.ts';
 import { repos } from './repos/index.ts';
 import { streaks } from './streaks/index.ts';
 import { summary } from './summary/index.ts';
 import { weekly } from './weekly/index.ts';
 
-export const CARD_DEFS = [summary, languages, contributions, weekly, streaks, about, repos] as const;
+export const CARD_DEFS = [summary, languages, contributions, weekly, streaks, about, repos, downloads] as const;
 
 export type CardDefs = (typeof CARD_DEFS)[number];
 /** Each card's settings, by its name: what's under cards: in the settings. */
